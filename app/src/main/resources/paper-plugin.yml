@@ -1,0 +1,5 @@
+loader: net.cubizor.runtimedependency.loader.RuntimeDependencyLoader
+name: TestPlugin
+version: 1.0.0
+main: net.cubizor.runtimedependency.app.TestPlugin
+api-version: "1.20"
