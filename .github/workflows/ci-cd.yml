@@ -37,7 +37,7 @@ jobs:
   debug-version:
     name: Debug Version Outputs
     needs: [version]
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - name: Print version outputs
         run: |

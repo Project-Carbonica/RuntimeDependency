@@ -26,7 +26,7 @@ on:
 jobs:
   build-versioned:
     name: Build Versioned JAR
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     timeout-minutes: 20
 
     steps:
@@ -62,7 +62,7 @@ jobs:
 
   publish:
     name: Publish to Nexus
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     needs: [build-versioned]
     timeout-minutes: 15
 
