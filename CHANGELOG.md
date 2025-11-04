@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.0...v1.0.1) (2025-11-04)
+
+
+### Bug Fixes
+
+* add support for Nexus credentials via project properties ([880d84c](https://github.com/Project-Carbonica/RuntimeDependency/commit/880d84c7fc68610d0e7880d1e46772efad559fb1))
+
 # 1.0.0 (2025-11-04)
 
 
