@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.3.0...v1.4.0) (2025-11-05)
+
+
+### Features
+
+* add standalone mode support with launcher and configuration options ([e336598](https://github.com/Project-Carbonica/RuntimeDependency/commit/e336598a4e36af78195d6f3df3b7fc87617ff848))
+
 # [1.3.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.2.0...v1.3.0) (2025-11-05)
 
 
