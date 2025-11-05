@@ -12,7 +12,7 @@
     [
       "gradle-semantic-release-plugin",
       {
-        "gradlePublishTask": ":gradle-plugin:publish"
+        "skipPublish": true
       }
     ],
     [
