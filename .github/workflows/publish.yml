@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: 'publish'
+      version:
+        description: 'Version to publish'
+        required: true
+        type: string
     secrets:
       NEXUS_RELEASE_URL:
         required: true
@@ -48,9 +52,8 @@ jobs:
 
       - name: Build with version
         run: |
-          PROJECT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
-          echo "📦 Building version: $PROJECT_VERSION"
-          ./gradlew clean build --no-daemon --stacktrace
+          echo "📦 Building version: ${{ inputs.version }}"
+          ./gradlew clean build -Pversion=${{ inputs.version }} --no-daemon --stacktrace
 
       - name: Upload JAR artifacts
         uses: actions/upload-artifact@v4
@@ -90,7 +93,10 @@ jobs:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          PROJECT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
-          echo "🚀 Publishing version: $PROJECT_VERSION"
-          ./gradlew ${{ inputs.publish-task }} --no-daemon --stacktrace
+          echo "🚀 Publishing version: ${{ inputs.version }}"
+          ./gradlew :gradle-plugin:${{ inputs.publish-task }} \
+            -Pversion=${{ inputs.version }} \
+            -PnexusUsername="${NEXUS_USERNAME}" \
+            -PnexusPassword="${NEXUS_PASSWORD}" \
+            --no-daemon --stacktrace
           echo "✅ Successfully published to Nexus"
