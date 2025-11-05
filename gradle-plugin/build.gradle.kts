@@ -66,10 +66,19 @@ publishing {
                 url = uri(if (version.toString().endsWith("SNAPSHOT")) nexusSnapshotUrl else nexusReleaseUrl)
 
                 credentials {
-                    username = project.findProperty("nexusUsername")?.toString()
-                        ?: System.getenv("NEXUS_USERNAME")
-                    password = project.findProperty("nexusPassword")?.toString()
-                        ?: System.getenv("NEXUS_PASSWORD")
+                    val propUsername = project.findProperty("nexusUsername")?.toString()
+                    val envUsername = System.getenv("NEXUS_USERNAME")
+                    val propPassword = project.findProperty("nexusPassword")?.toString()
+                    val envPassword = System.getenv("NEXUS_PASSWORD")
+
+                    println("🔍 Nexus Credentials Debug:")
+                    println("  - Property nexusUsername exists: ${propUsername != null}")
+                    println("  - Env NEXUS_USERNAME exists: ${envUsername != null}")
+                    println("  - Property nexusPassword exists: ${propPassword != null}")
+                    println("  - Env NEXUS_PASSWORD exists: ${envPassword != null}")
+
+                    username = propUsername ?: envUsername
+                    password = propPassword ?: envPassword
                 }
             }
         }
