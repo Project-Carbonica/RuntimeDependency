@@ -40,4 +40,7 @@ bin/
 .vscode/
 
 ### Mac OS ###
-.DS_Store
+.DS_Store.secrets
+
+.secrets
+.github/workflows/test-local.yml

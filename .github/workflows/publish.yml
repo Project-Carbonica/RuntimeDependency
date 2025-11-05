@@ -93,8 +93,8 @@ jobs:
           PROJECT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
           echo "🚀 Publishing version: $PROJECT_VERSION"
           ./gradlew :gradle-plugin:${{ inputs.publish-task }} \
-            -Pversion="${PROJECT_VERSION}" \
-            -PnexusUsername="${NEXUS_USERNAME}" \
-            -PnexusPassword="${NEXUS_PASSWORD}" \
+            "-Pversion=${PROJECT_VERSION}" \
+            "-PnexusUsername=${NEXUS_USERNAME}" \
+            "-PnexusPassword=${NEXUS_PASSWORD}" \
             --no-daemon --stacktrace
           echo "✅ Successfully published to Nexus"
