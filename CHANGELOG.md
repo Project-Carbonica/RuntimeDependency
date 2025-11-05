@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.5...v1.1.6) (2025-11-05)
+
+
+### Bug Fixes
+
+* fixed speciacal character problem in secret ([8efcfd2](https://github.com/Project-Carbonica/RuntimeDependency/commit/8efcfd2cb8a0e086fc24b615953eab806c70aeeb))
+
 ## [1.1.5](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.4...v1.1.5) (2025-11-05)
 
 
