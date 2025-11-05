@@ -73,7 +73,7 @@ class RuntimeDependencyPlugin : Plugin<Project> {
 
         configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
             val id = artifact.moduleVersion.id
-            val repoInfo = findRepositoryForArtifact(project, id.group, id.name, id.version)
+            val repoInfo = findRepositoryForArtifact(project)
 
             result.add(
                 DependencyInfo(
@@ -88,12 +88,7 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         return result
     }
 
-    private fun findRepositoryForArtifact(
-        project: Project,
-        group: String,
-        name: String,
-        version: String
-    ): RepositoryInfo {
+    private fun findRepositoryForArtifact(project: Project): RepositoryInfo {
         val privateRepos = mutableListOf<RepositoryInfo>()
         val projectsToScan = mutableListOf(project)
         if (project.parent != null) {

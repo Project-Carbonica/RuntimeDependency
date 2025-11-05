@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/build-test.yml
     with:
       java-version: '21'
-      gradle-tasks: 'clean build test'
+      gradle-tasks: ':gradle-plugin:clean :gradle-plugin:build :gradle-plugin:test'
 
   # Step 2: Semantic Versioning
   version:
