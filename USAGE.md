@@ -186,7 +186,7 @@ The plugin automatically:
 - Adds all runtimeDownload dependencies and repositories
 - Paper loads dependencies at runtime (no local download needed)
 
-### Generated PluginLoader
+### Generated PluginLoader (Public Dependencies)
 
 ```java
 package com.example.plugin.loader;
@@ -206,11 +206,71 @@ public class DependencyLoader implements PluginLoader {
 
         resolver.addDependency(new Dependency(new DefaultArtifact("com.google.code.gson:gson:2.10.1"), null));
 
-        resolver.addRepository(new RemoteRepository.Builder("central", "default", "https://repo1.maven.org/maven2/").build());
+        // Maven Central is provided by Paper, so no repository needed
 
         classpathBuilder.addLibrary(resolver);
     }
 }
+```
+
+### Generated PluginLoader (With Private Repository)
+
+If your project uses a private repository (e.g., Nexus):
+
+```java
+package com.example.plugin.loader;
+
+import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
+import io.papermc.paper.plugin.loader.PluginLoader;
+import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
+import org.jetbrains.annotations.NotNull;
+
+public class DependencyLoader implements PluginLoader {
+    @Override
+    public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
+        MavenLibraryResolver resolver = new MavenLibraryResolver();
+
+        resolver.addDependency(new Dependency(new DefaultArtifact("com.company:private-lib:1.0.0"), null));
+
+        // Private repository with authentication
+        RemoteRepository.Builder nexusBuilder = new RemoteRepository.Builder("nexus", "default", "https://nexus.company.com/repository/maven-public");
+
+        // Try environment variable first, fallback to system property
+        String nexusUser = System.getenv("NEXUS_USERNAME");
+        if (nexusUser == null) {
+            nexusUser = System.getProperty("nexus.username");
+        }
+        String nexusPass = System.getenv("NEXUS_PASSWORD");
+        if (nexusPass == null) {
+            nexusPass = System.getProperty("nexus.password");
+        }
+
+        // Add authentication if credentials are available
+        if (nexusUser != null && nexusPass != null) {
+            nexusBuilder.setAuthentication(new AuthenticationBuilder()
+                .addUsername(nexusUser)
+                .addPassword(nexusPass)
+                .build());
+        }
+
+        resolver.addRepository(nexusBuilder.build());
+
+        classpathBuilder.addLibrary(resolver);
+    }
+}
+```
+
+**Runtime credentials:**
+```bash
+# Repository name "nexus" becomes environment variable "NEXUS"
+export NEXUS_USERNAME=your_username
+export NEXUS_PASSWORD=your_password
+
+java -jar paper.jar
 ```
 
 ### Updated paper-plugin.yml
