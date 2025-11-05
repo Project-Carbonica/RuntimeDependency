@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.cubizor.gradle"
-version = "1.2.1-LOCAL"
+// Version is inherited from root gradle.properties
 
 kotlin {
     jvmToolchain(21)
@@ -24,10 +24,9 @@ gradlePlugin {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-
-            // POM metadata
+        // java-gradle-plugin already creates 'pluginMaven' publication automatically
+        // We customize it with POM metadata
+        withType<MavenPublication> {
             pom {
                 name.set("${rootProject.name} - ${project.name}")
                 description.set("RuntimeDependency - Runtime dependency management")
