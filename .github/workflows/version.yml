@@ -35,7 +35,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  # new version
   version:
     name: Semantic Versioning
     runs-on: arc-runner-set
@@ -79,7 +78,7 @@ jobs:
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
-            @semantic-release/exec
+            gradle-semantic-release-plugin
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 

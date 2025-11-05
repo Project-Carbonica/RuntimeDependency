@@ -9,12 +9,7 @@
         "changelogFile": "CHANGELOG.md"
       }
     ],
-    [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "sed -i.bak 's/^version=.*/version=${nextRelease.version}/' gradle.properties && rm -f gradle.properties.bak"
-      }
-    ],
+    "gradle-semantic-release-plugin",
     [
       "@semantic-release/git",
       {

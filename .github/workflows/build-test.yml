@@ -40,6 +40,30 @@ jobs:
       - name: Run Gradle Tasks
         run: ./gradlew ${{ inputs.gradle-tasks }} --no-daemon --stacktrace
 
+      - name: Verify Tests Were Run
+        run: |
+          TEST_COUNT=$(find . -name "TEST-*.xml" -path "*/build/test-results/*" | wc -l)
+          echo "Found $TEST_COUNT test result files"
+          if [ "$TEST_COUNT" -eq 0 ]; then
+            echo "ERROR: No tests were run!"
+            exit 1
+          fi
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: (!cancelled())
+        with:
+          files: '**/build/test-results/**/*.xml'
+          check_name: 'Test Results'
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.run_id }}
+          path: '**/build/test-results/**/*.xml'
+          retention-days: 30
+
       - name: Upload Build Reports
         uses: actions/upload-artifact@v4
         if: failure()
