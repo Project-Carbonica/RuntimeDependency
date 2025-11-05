@@ -10,9 +10,9 @@
       }
     ],
     [
-      "gradle-semantic-release-plugin",
+      "@semantic-release/exec",
       {
-        "skipPublish": true
+        "prepareCmd": "sed -i.bak 's/^version=.*/version=${nextRelease.version}/' gradle.properties && rm -f gradle.properties.bak"
       }
     ],
     [
