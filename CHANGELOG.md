@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.2...v1.1.3) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed maven name ([76564fc](https://github.com/Project-Carbonica/RuntimeDependency/commit/76564fcd65cb79b464c11027a4b21109b716fd11))
+
 ## [1.1.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.1...v1.1.2) (2025-11-05)
 
 
