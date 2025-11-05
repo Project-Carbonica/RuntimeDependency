@@ -14,6 +14,20 @@ abstract class PaperExtension {
     }
 }
 
+abstract class StandaloneExtension {
+    abstract val enabled: Property<Boolean>
+    abstract val mainClass: Property<String>
+    abstract val libraryPath: Property<String>
+    abstract val includeBootstrapInJar: Property<Boolean>
+
+    init {
+        enabled.convention(false)
+        mainClass.convention("")
+        libraryPath.convention("runtime-dependencies")
+        includeBootstrapInJar.convention(true)
+    }
+}
+
 abstract class RuntimeDependencyExtension {
     abstract val outputDirectory: Property<String>
     abstract val organizeByGroup: Property<Boolean>

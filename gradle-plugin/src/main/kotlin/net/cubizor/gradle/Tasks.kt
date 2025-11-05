@@ -196,3 +196,38 @@ $repoCode
         println("Updated ${targetFile.name} with $loaderKey $packageName.$className")
     }
 }
+
+abstract class ConfigureStandaloneManifestTask : DefaultTask() {
+    @get:Input
+    abstract val mainClass: Property<String>
+
+    @get:Input
+    abstract val libraryPath: Property<String>
+
+    @get:Input
+    abstract val actualMainClass: Property<String>
+
+    @TaskAction
+    fun configure() {
+        val manifestMainClass = mainClass.get()
+        val libPath = libraryPath.get()
+        val realMainClass = actualMainClass.get()
+
+        println("=".repeat(60))
+        println("Configuring Standalone Mode")
+        println("=".repeat(60))
+        println("Bootstrap Main-Class: $manifestMainClass")
+        println("Actual Main-Class: $realMainClass")
+        println("Library Path: $libPath")
+        println()
+        println("The JAR will be configured with:")
+        println("  Main-Class: $manifestMainClass")
+        println()
+        println("To run the application:")
+        println("  java -Druntime.dependency.main.class=$realMainClass -jar yourapp.jar")
+        println()
+        println("Or set in manifest via jar task configuration.")
+        println("=".repeat(60))
+    }
+}
+

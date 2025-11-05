@@ -1,6 +1,126 @@
 # Usage Guide
 
-## Basic Usage
+RuntimeDependency plugin supports three modes:
+- **Paper Mode** - For Minecraft Paper plugins
+- **Standalone Mode** - For standalone Java applications
+- **Basic Mode** - Just download dependencies (default)
+
+---
+
+## Standalone Mode
+
+For standalone Java/Kotlin applications that need runtime dependency loading.
+
+### Quick Start
+
+```kotlin
+plugins {
+    id("net.cubizor.runtime-dependency")
+}
+
+runtimeDependency {
+    standalone {
+        enabled.set(true)
+        mainClass.set("com.example.MyApp")  // Your actual main class
+    }
+}
+
+dependencies {
+    runtimeDownload("com.google.code.gson:gson:2.10.1")
+    runtimeDownload("org.apache.commons:commons-lang3:3.14.0")
+}
+```
+
+### Build and Run
+
+```bash
+# Build your application
+./gradlew build
+
+# Run with automatic dependency loading
+java -jar build/libs/yourapp.jar
+```
+
+The plugin automatically:
+1. Downloads dependencies to `build/runtime-dependencies/`
+2. Configures JAR manifest with bootstrap launcher
+3. Loads dependencies before your main class runs
+4. No manual classpath configuration needed
+
+### How It Works
+
+```
+┌─────────────────────────────────────────┐
+│  java -jar yourapp.jar                  │
+└───────────────┬─────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────┐
+│  LauncherBootstrap (from plugin)        │
+│  1. Scans runtime-dependencies/         │
+│  2. Loads all JARs into classpath       │
+│  3. Invokes your main class             │
+└───────────────┬─────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────┐
+│  com.example.MyApp.main()               │
+│  Your application starts with all       │
+│  dependencies available!                │
+└─────────────────────────────────────────┘
+```
+
+### Configuration Options
+
+```kotlin
+runtimeDependency {
+    standalone {
+        enabled.set(true)
+        mainClass.set("com.example.Main")              // Required: Your main class
+        libraryPath.set("runtime-dependencies")        // Optional: Library directory
+        includeBootstrapInJar.set(true)               // Optional: Include launcher
+    }
+}
+```
+
+### Advanced: Custom Library Path
+
+```kotlin
+runtimeDependency {
+    standalone {
+        enabled.set(true)
+        mainClass.set("com.example.Main")
+        libraryPath.set("libs")  // Custom directory
+    }
+    outputDirectory.set("libs")  // Must match libraryPath
+}
+```
+
+Run with custom path:
+```bash
+java -Druntime.dependency.library.path=/custom/path -jar yourapp.jar
+```
+
+### Distribution
+
+When distributing your app:
+```
+yourapp/
+  ├── yourapp.jar                    # Your application
+  └── runtime-dependencies/          # Copy this folder too!
+      ├── gson/
+      │   └── gson-2.10.1.jar
+      └── commons-lang3/
+          └── commons-lang3-3.14.0.jar
+```
+
+Users just run: `java -jar yourapp.jar`
+
+---
+
+## Basic Mode (Default)
+
+Simple dependency download without automatic loading.
 
 ### 1. Apply Plugin
 
@@ -37,7 +157,9 @@ build/runtime-dependencies/
     commons-lang3-3.14.0.jar
 ```
 
-## Configuration
+---
+
+## Configuration (All Modes)
 
 ### Custom Output Directory
 
@@ -62,7 +184,11 @@ build/runtime-dependencies/
   commons-lang3-3.14.0.jar
 ```
 
-## Private Repository
+---
+
+## Private Repository Support
+
+Works with **all modes** (Basic, Standalone, Paper).
 
 ### 1. Define Repository
 
@@ -89,9 +215,9 @@ myRepo.username=your_username
 myRepo.password=your_password
 ```
 
-### 3. Runtime Credentials
+### 3. Runtime Credentials (Paper Mode Only)
 
-For Paper server to download dependencies at runtime, use **environment variables**:
+For **Paper mode**, server needs credentials to download dependencies at runtime using **environment variables**:
 
 ```bash
 # Repository name "myRepo" -> Environment variable "MYREPO"
@@ -102,12 +228,14 @@ export MYREPO_PASSWORD=your_password
 java -jar paper.jar
 ```
 
+**Note:** Standalone mode downloads dependencies at **build time**, so runtime credentials are not needed.
+
 **Naming Convention:** Convert repository name to uppercase, replace special characters with `_`:
 - `myRepo` → `MYREPO_USERNAME`, `MYREPO_PASSWORD`
 - `nexus-repo` → `NEXUS_REPO_USERNAME`, `NEXUS_REPO_PASSWORD`
 - `company.internal` → `COMPANY_INTERNAL_USERNAME`, `COMPANY_INTERNAL_PASSWORD`
 
-### Alternative: System Properties
+### Alternative: System Properties (Paper Mode)
 
 Instead of environment variables:
 
@@ -142,11 +270,13 @@ export ARTIFACTORY_PASSWORD=xyz789
 java -jar paper.jar
 ```
 
-## Paper Plugin Integration
+---
 
-For Paper plugin developers, the plugin can auto-generate PluginLoader.
+## Paper Plugin Mode
 
-**Note:** When Paper integration is enabled, dependencies are loaded by Paper at runtime. The `downloadRuntimeDependencies` task is disabled.
+For Minecraft Paper plugin developers, auto-generates PluginLoader.
+
+**Note:** When Paper mode is enabled, dependencies are loaded by Paper at runtime. The `downloadRuntimeDependencies` task is disabled.
 
 ### 1. Enable Paper Extension
 
@@ -331,6 +461,8 @@ dependencies {
 }
 ```
 
+---
+
 ## Transitive Dependencies
 
 The plugin automatically handles transitive dependencies:
@@ -342,3 +474,64 @@ dependencies {
 ```
 
 Downloads Spring Boot and all its dependencies.
+
+---
+
+## Mode Comparison
+
+| Feature | Basic Mode | Standalone Mode | Paper Mode |
+|---------|-----------|-----------------|------------|
+| **Use Case** | Manual loading | Standalone apps | Paper plugins |
+| **Auto Loading** | ❌ No | ✅ Yes | ✅ Yes |
+| **Requires Paper** | ❌ | ❌ | ✅ |
+| **Build Time Download** | ✅ | ✅ | ❌ |
+| **Runtime Download** | ❌ | ❌ | ✅ |
+| **Manifest Config** | ❌ | ✅ Auto | ❌ |
+| **Distribution** | Manual | Automatic | Paper handles |
+
+### Which Mode to Choose?
+
+- **Building a Paper plugin?** Use Paper Mode
+- **Building a standalone app?** Use Standalone Mode
+- **Need manual control?** Use Basic Mode (default)
+
+---
+
+## Troubleshooting
+
+### Standalone Mode Issues
+
+**Problem:** `ClassNotFoundException` at runtime
+
+**Solution:** Ensure `runtime-dependencies/` folder is copied with your JAR.
+
+**Problem:** Custom main class not found
+
+**Solution:** Verify `mainClass` in build.gradle.kts:
+```kotlin
+runtimeDependency {
+    standalone {
+        mainClass.set("com.example.Main")  // Fully qualified name
+    }
+}
+```
+
+**Problem:** Dependencies not loaded
+
+**Solution:** Check library path:
+```bash
+java -Druntime.dependency.library.path=./runtime-dependencies -jar yourapp.jar
+```
+
+### Paper Mode Issues
+
+**Problem:** PluginLoader not found
+
+**Solution:** Ensure `paper-plugin.yml` exists and plugin is built after configuration.
+
+### General Issues
+
+**Problem:** Private repository authentication fails
+
+**Solution:** Check credentials in `gradle.properties` and environment variables.
+
