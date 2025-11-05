@@ -9,7 +9,12 @@
         "changelogFile": "CHANGELOG.md"
       }
     ],
-    "gradle-semantic-release-plugin",
+    [
+      "gradle-semantic-release-plugin",
+      {
+        "gradlePublishTask": ":gradle-plugin:publish"
+      }
+    ],
     [
       "@semantic-release/git",
       {
