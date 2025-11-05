@@ -64,79 +64,82 @@ build/runtime-dependencies/
 
 ## Private Repository
 
-### How Credentials Work
+### 1. Define Repository
 
-The plugin automatically detects credentials for private repositories based on the **repository ID** (name).
+```kotlin
+repositories {
+    maven {
+        name = "myRepo"  // This name is important!
+        url = uri("https://private.company.com/maven")
+    }
+}
 
-For a repository with ID `"myRepo"`, the plugin looks for credentials in this order:
-1. **Environment Variables**: `MYREPO_USERNAME` and `MYREPO_PASSWORD`
-2. **System Properties**: `myRepo.username` and `myRepo.password`
-3. **gradle.properties**: `myRepo.username` and `myRepo.password`
-
-The repository ID is converted to uppercase and special characters (`.`, `-`) are replaced with `_` for environment variable names.
-
-### Example: Repository with ID "myRepo"
-
-#### Using Environment Variables (Recommended for Production)
-
-```bash
-export MYREPO_USERNAME=your_username
-export MYREPO_PASSWORD=your_password
-java -jar paper.jar
+dependencies {
+    runtimeDownload("com.company:secret-lib:1.0.0")
+}
 ```
 
-#### Using System Properties
+### 2. Build Time Credentials (gradle.properties)
 
-```bash
-java -DmyRepo.username=your_username -DmyRepo.password=your_password -jar paper.jar
-```
-
-#### Using gradle.properties (Build Time Only)
+For the plugin to access the repository during build:
 
 ```properties
+# ~/.gradle/gradle.properties or project's gradle.properties
 myRepo.username=your_username
 myRepo.password=your_password
 ```
 
-### Example: Repository with ID "nexus-repo"
+### 3. Runtime Credentials
+
+For Paper server to download dependencies at runtime, use **environment variables**:
+
+```bash
+# Repository name "myRepo" -> Environment variable "MYREPO"
+export MYREPO_USERNAME=your_username
+export MYREPO_PASSWORD=your_password
+
+# Start the server
+java -jar paper.jar
+```
+
+**Naming Convention:** Convert repository name to uppercase, replace special characters with `_`:
+- `myRepo` → `MYREPO_USERNAME`, `MYREPO_PASSWORD`
+- `nexus-repo` → `NEXUS_REPO_USERNAME`, `NEXUS_REPO_PASSWORD`
+- `company.internal` → `COMPANY_INTERNAL_USERNAME`, `COMPANY_INTERNAL_PASSWORD`
+
+### Alternative: System Properties
+
+Instead of environment variables:
+
+```bash
+java -DmyRepo.username=user -DmyRepo.password=pass -jar paper.jar
+```
+
+**Warning:** System properties are visible in `ps` output. Use environment variables in production!
+
+### Multiple Private Repositories Example
 
 ```kotlin
 repositories {
     maven {
-        name = "nexus-repo"  // Repository ID
+        name = "nexus"
         url = uri("https://nexus.company.com/repository/maven-releases/")
     }
-}
-```
-
-Runtime credentials:
-```bash
-# Environment variables (nexus-repo -> NEXUS_REPO)
-export NEXUS_REPO_USERNAME=admin
-export NEXUS_REPO_PASSWORD=secret123
-```
-
-### Example: Multiple Private Repositories
-
-```kotlin
-repositories {
     maven {
-        name = "companyRepo"
-        url = uri("https://company.com/maven")
-    }
-    maven {
-        name = "thirdParty"
-        url = uri("https://third-party.com/maven")
+        name = "artifactory"
+        url = uri("https://artifactory.company.com/libs-release/")
     }
 }
 ```
 
-Runtime credentials:
+Runtime:
 ```bash
-export COMPANYREPO_USERNAME=user1
-export COMPANYREPO_PASSWORD=pass1
-export THIRDPARTY_USERNAME=user2
-export THIRDPARTY_PASSWORD=pass2
+export NEXUS_USERNAME=admin
+export NEXUS_PASSWORD=secret123
+export ARTIFACTORY_USERNAME=deploy
+export ARTIFACTORY_PASSWORD=xyz789
+
+java -jar paper.jar
 ```
 
 ## Paper Plugin Integration
