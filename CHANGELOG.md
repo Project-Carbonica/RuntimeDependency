@@ -1,3 +1,17 @@
+# [1.3.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.2.0...v1.3.0) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed workflows ([aa9ae66](https://github.com/Project-Carbonica/RuntimeDependency/commit/aa9ae66435a5e4c8d5c0fa8c0943dcf7201bc611))
+* fixed paper private repo error ([8526597](https://github.com/Project-Carbonica/RuntimeDependency/commit/852659764699028755cffdc4c5e7207d64489d34))
+
+
+### Features
+
+* add support for private repository authentication in PluginLoader generation ([19d50ea](https://github.com/Project-Carbonica/RuntimeDependency/commit/19d50ead342cdb430d7ebad7f3ff6eac11ce4ad1))
+* deleted app module ([1ce8bd8](https://github.com/Project-Carbonica/RuntimeDependency/commit/1ce8bd824ba51834c1b2c3adbb14733ff6b23b58))
+
 # [1.2.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.6...v1.2.0) (2025-11-05)
 
 
