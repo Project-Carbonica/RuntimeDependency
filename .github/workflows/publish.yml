@@ -1,4 +1,4 @@
-name: Build & Publish (Reusable)
+name: Publish (Reusable)
 
 on:
   workflow_call:
@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: 'publish'
+      version:
+        description: 'Version to publish'
+        required: true
+        type: string
     secrets:
       NEXUS_RELEASE_URL:
         required: true
@@ -24,46 +28,9 @@ on:
         required: true
 
 jobs:
-  build-versioned:
-    name: Build Versioned JAR
-    runs-on: arc-runner-set
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Set up JDK ${{ inputs.java-version }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{ inputs.java-version }}
-          cache: 'gradle'
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build with version
-        run: |
-          PROJECT_VERSION=$(grep "^version" gradle-plugin/build.gradle.kts | head -1 | cut -d'"' -f2)
-          echo "📦 Building version: $PROJECT_VERSION"
-          ./gradlew clean build --no-daemon --stacktrace
-
-      - name: Upload JAR artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: jar-files-${{ github.run_id }}
-          path: |
-            gradle-plugin/build/libs/*.jar
-          retention-days: 30
-
   publish:
     name: Publish to Nexus
     runs-on: arc-runner-set
-    needs: [build-versioned]
     timeout-minutes: 15
 
     steps:
@@ -83,6 +50,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Debug Nexus Credentials
+        run: |
+          echo "🔍 Checking Nexus credentials..."
+          echo "NEXUS_USERNAME is set: ${{ secrets.NEXUS_USERNAME != '' }}"
+          echo "NEXUS_PASSWORD is set: ${{ secrets.NEXUS_PASSWORD != '' }}"
+          echo "NEXUS_RELEASE_URL: ${{ secrets.NEXUS_RELEASE_URL }}"
+          echo "NEXUS_SNAPSHOT_URL: ${{ secrets.NEXUS_SNAPSHOT_URL }}"
+
       - name: Publish to Nexus
         env:
           NEXUS_RELEASE_URL: ${{ secrets.NEXUS_RELEASE_URL }}
@@ -90,9 +65,9 @@ jobs:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          PROJECT_VERSION=$(grep "^version" gradle-plugin/build.gradle.kts | head -1 | cut -d'"' -f2)
-          echo "🚀 Publishing version: $PROJECT_VERSION"
+          echo "🚀 Publishing version: ${{ inputs.version }}"
           ./gradlew :gradle-plugin:${{ inputs.publish-task }} \
+            -Pversion=${{ inputs.version }} \
             -PnexusUsername="${NEXUS_USERNAME}" \
             -PnexusPassword="${NEXUS_PASSWORD}" \
             --no-daemon --stacktrace

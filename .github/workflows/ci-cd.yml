@@ -55,6 +55,7 @@ jobs:
     with:
       java-version: '21'
       publish-task: 'publish'
+      version: ${{ needs.version.outputs.new-release-version }}
     secrets:
       NEXUS_RELEASE_URL: ${{ secrets.NEXUS_RELEASE_URL }}
       NEXUS_SNAPSHOT_URL: ${{ secrets.NEXUS_SNAPSHOT_URL }}
