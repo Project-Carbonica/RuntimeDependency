@@ -24,26 +24,50 @@ gradlePlugin {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("maven") {
             from(components["java"])
+
+            // POM metadata
+            pom {
+                name.set("${rootProject.name} - ${project.name}")
+                description.set("RuntimeDependency - Runtime dependency management")
+                url.set("https://github.com/Cubizor/RuntimeDependency")
+
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("cubizor")
+                        name.set("Cubizor")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/Cubizor/RuntimeDependency.git")
+                    developerConnection.set("scm:git:ssh://github.com/Cubizor/RuntimeDependency.git")
+                    url.set("https://github.com/Cubizor/RuntimeDependency")
+                }
+            }
         }
     }
     repositories {
-        maven {
-            name = "nexus"
-            val isSnapshot = version.toString().endsWith("-SNAPSHOT")
-            url = uri(
-                if (isSnapshot) {
-                    System.getenv("NEXUS_SNAPSHOT_URL") ?: "https://nexus.example.com/repository/maven-snapshots/"
-                } else {
-                    System.getenv("NEXUS_RELEASE_URL") ?: "https://nexus.example.com/repository/maven-releases/"
+        // Nexus repository (sadece CI'da kullanılır)
+        val nexusReleaseUrl = System.getenv("NEXUS_RELEASE_URL")
+        val nexusSnapshotUrl = System.getenv("NEXUS_SNAPSHOT_URL")
+
+        if (nexusReleaseUrl != null && nexusSnapshotUrl != null) {
+            maven {
+                url = uri(if (version.toString().endsWith("SNAPSHOT")) nexusSnapshotUrl else nexusReleaseUrl)
+
+                credentials {
+                    username = System.getenv("NEXUS_USERNAME")
+                    password = System.getenv("NEXUS_PASSWORD")
                 }
-            )
-            credentials {
-                username = project.findProperty("nexusUsername")?.toString()
-                    ?: System.getenv("NEXUS_USERNAME")
-                password = project.findProperty("nexusPassword")?.toString()
-                    ?: System.getenv("NEXUS_PASSWORD")
             }
         }
     }
