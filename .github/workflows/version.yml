@@ -35,6 +35,7 @@ permissions:
   pull-requests: write
 
 jobs:
+  # new version
   version:
     name: Semantic Versioning
     runs-on: arc-runner-set
