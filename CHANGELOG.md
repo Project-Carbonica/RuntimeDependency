@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.1...v1.1.2) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed publications in gradle ([f5455c1](https://github.com/Project-Carbonica/RuntimeDependency/commit/f5455c1af9920384e1fee16fc730dec849f5f7f5))
+
 ## [1.1.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.0...v1.1.1) (2025-11-05)
 
 
