@@ -1,3 +1,11 @@
+## [1.1.5](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.4...v1.1.5) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed nexus variables for plugin ([f73ce34](https://github.com/Project-Carbonica/RuntimeDependency/commit/f73ce345776e11a97b7d74ebb5172bb097ea3001))
+* changed password type ([1a260f0](https://github.com/Project-Carbonica/RuntimeDependency/commit/1a260f041e0c848182022f865de0d9005f8b4e0e))
+
 ## [1.1.4](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.3...v1.1.4) (2025-11-05)
 
 
