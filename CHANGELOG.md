@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.2...v1.0.3) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed some deploy mechanichs ([150a4f2](https://github.com/Project-Carbonica/RuntimeDependency/commit/150a4f28e5ab12505ffdd54d0510194bc6985ff0))
+
 ## [1.0.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.1...v1.0.2) (2025-11-05)
 
 
