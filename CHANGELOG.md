@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.5...v1.0.6) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed gradle.properties for version ([b3308d5](https://github.com/Project-Carbonica/RuntimeDependency/commit/b3308d5c79260a89d3664990afb4f3a42a25b978))
+
 ## [1.0.5](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.4...v1.0.5) (2025-11-05)
 
 
