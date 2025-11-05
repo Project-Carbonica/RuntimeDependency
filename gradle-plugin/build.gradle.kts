@@ -66,8 +66,10 @@ publishing {
                 url = uri(if (version.toString().endsWith("SNAPSHOT")) nexusSnapshotUrl else nexusReleaseUrl)
 
                 credentials {
-                    username = System.getenv("NEXUS_USERNAME")
-                    password = System.getenv("NEXUS_PASSWORD")
+                    username = project.findProperty("nexusUsername")?.toString()
+                        ?: System.getenv("NEXUS_USERNAME")
+                    password = project.findProperty("nexusPassword")?.toString()
+                        ?: System.getenv("NEXUS_PASSWORD")
                 }
             }
         }
