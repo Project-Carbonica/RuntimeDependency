@@ -1,3 +1,20 @@
+# [1.1.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.6...v1.1.0) (2025-11-05)
+
+
+### Bug Fixes
+
+* added publications ([d8f6bab](https://github.com/Project-Carbonica/RuntimeDependency/commit/d8f6babb9aa9c1191daf99f9d4f0d350564241f0))
+* changed publish ([500e31c](https://github.com/Project-Carbonica/RuntimeDependency/commit/500e31c292be9088a4754ab40fbe45cd5db95234))
+* changed publish directory ([a4b8c04](https://github.com/Project-Carbonica/RuntimeDependency/commit/a4b8c049d8bed159ee5b473694a4ec14c8f54d69))
+* changed publish.yml ([7f3161d](https://github.com/Project-Carbonica/RuntimeDependency/commit/7f3161d9dd191fe7db62c093190d3f5355c71087))
+* changed version.yml ([760267a](https://github.com/Project-Carbonica/RuntimeDependency/commit/760267af628752eb032b969b5620e2ea7b08106e))
+* removed test security ([bfb376b](https://github.com/Project-Carbonica/RuntimeDependency/commit/bfb376b28a10de434eada511d31a87718b37430d))
+
+
+### Features
+
+* changed all workflows ([13c51dd](https://github.com/Project-Carbonica/RuntimeDependency/commit/13c51dd314654c71712a48bbfca306022a92d9c2))
+
 ## [1.0.6](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.5...v1.0.6) (2025-11-05)
 
 
