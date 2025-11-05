@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.0...v1.1.1) (2025-11-05)
+
+
+### Bug Fixes
+
+* fixed publish task find ([d3584d8](https://github.com/Project-Carbonica/RuntimeDependency/commit/d3584d8e4e7340653b2194ee690761da8dff01d4))
+
 # [1.1.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.6...v1.1.0) (2025-11-05)
 
 
