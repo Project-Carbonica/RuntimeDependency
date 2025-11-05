@@ -49,7 +49,10 @@ data class DependencyInfo(
 
 data class RepositoryInfo(
     val name: String,
-    val url: String
+    val url: String,
+    val usernameProperty: String? = null,
+    val passwordProperty: String? = null,
+    val isMavenCentral: Boolean = false
 ) : Serializable
 
 abstract class RuntimeDependencyTask : DefaultTask() {
@@ -146,7 +149,44 @@ abstract class GeneratePaperLoaderTask : DefaultTask() {
     ): String {
         val repoMap = mutableMapOf<String, RepositoryInfo>()
         deps.forEach { dep ->
-            repoMap[dep.repository.name] = dep.repository
+            // Maven Central'i skip et
+            if (!dep.repository.isMavenCentral) {
+                repoMap[dep.repository.name] = dep.repository
+            }
+        }
+
+        val needsAuth = repoMap.values.any { it.usernameProperty != null || it.passwordProperty != null }
+        val authImport = if (needsAuth) {
+            "import org.eclipse.aether.util.repository.AuthenticationBuilder;"
+        } else ""
+
+        val repoCode = repoMap.values.distinctBy { it.url }.joinToString("\n") { repo ->
+            val builderCode = StringBuilder()
+            builderCode.append("        RemoteRepository.Builder ${repo.name}Builder = new RemoteRepository.Builder(\"${repo.name}\", \"default\", \"${repo.url}\");")
+
+            if (repo.usernameProperty != null && repo.passwordProperty != null) {
+                builderCode.append("\n")
+                // Repository ID'den environment variable ismi olustur (ornek: myRepo -> MYREPO)
+                val envPrefix = repo.name.uppercase().replace("-", "_").replace(".", "_")
+                builderCode.append("        // Credentials - once environment variable, sonra system property'ye bak\n")
+                builderCode.append("        String ${repo.name}User = System.getenv(\"${envPrefix}_USERNAME\");\n")
+                builderCode.append("        if (${repo.name}User == null) {\n")
+                builderCode.append("            ${repo.name}User = System.getProperty(\"${repo.usernameProperty}\");\n")
+                builderCode.append("        }\n")
+                builderCode.append("        String ${repo.name}Pass = System.getenv(\"${envPrefix}_PASSWORD\");\n")
+                builderCode.append("        if (${repo.name}Pass == null) {\n")
+                builderCode.append("            ${repo.name}Pass = System.getProperty(\"${repo.passwordProperty}\");\n")
+                builderCode.append("        }\n")
+                builderCode.append("        if (${repo.name}User != null && ${repo.name}Pass != null) {\n")
+                builderCode.append("            ${repo.name}Builder.setAuthentication(new AuthenticationBuilder()\n")
+                builderCode.append("                .addUsername(${repo.name}User)\n")
+                builderCode.append("                .addPassword(${repo.name}Pass)\n")
+                builderCode.append("                .build());\n")
+                builderCode.append("        }\n")
+            }
+
+            builderCode.append("        resolver.addRepository(${repo.name}Builder.build());")
+            builderCode.toString()
         }
 
         return """
@@ -158,6 +198,7 @@ import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
+$authImport
 import org.jetbrains.annotations.NotNull;
 
 public class $className implements PluginLoader {
@@ -169,9 +210,7 @@ ${deps.joinToString("\n") { dep ->
         "        resolver.addDependency(new Dependency(new DefaultArtifact(\"${dep.groupId}:${dep.artifactId}:${dep.version}\"), null));"
 }}
 
-${repoMap.values.distinctBy { it.url }.joinToString("\n") { repo ->
-        "        resolver.addRepository(new RemoteRepository.Builder(\"${repo.name}\", \"default\", \"${repo.url}\").build());"
-}}
+$repoCode
 
         classpathBuilder.addLibrary(resolver);
     }
@@ -194,12 +233,19 @@ ${repoMap.values.distinctBy { it.url }.joinToString("\n") { repo ->
             }
         }
 
+        // plugin.yml ise paper-plugin-loader:, paper-plugin.yml ise loader: kullan
+        val isPaperPluginYml = targetFile.name == "paper-plugin.yml"
+        val loaderKey = if (isPaperPluginYml) "loader:" else "paper-plugin-loader:"
+        val loaderLine = "$loaderKey $packageName.$className"
+
         // Dosyayi oku
         val lines = targetFile.readLines().toMutableList()
-        val loaderLine = "loader: $packageName.$className"
 
-        // loader: satırını bul ve guncelle veya ekle
-        val loaderIndex = lines.indexOfFirst { it.trim().startsWith("loader:") }
+        // Her iki key'i de kontrol et (eski veya yeni format)
+        val loaderIndex = lines.indexOfFirst {
+            it.trim().startsWith("loader:") || it.trim().startsWith("paper-plugin-loader:")
+        }
+
         if (loaderIndex >= 0) {
             lines[loaderIndex] = loaderLine
         } else {
@@ -209,7 +255,7 @@ ${repoMap.values.distinctBy { it.url }.joinToString("\n") { repo ->
 
         // Dosyayi yaz
         targetFile.writeText(lines.joinToString("\n"))
-        println("Updated ${targetFile.name} with loader: $packageName.$className")
+        println("Updated ${targetFile.name} with $loaderKey $packageName.$className")
     }
 }
 
@@ -272,9 +318,10 @@ class RuntimeDependencyPlugin : Plugin<Project> {
                     repositories.set(repos)
                 }
 
-                // compileJava ve compileKotlin'den once calissin
+                // compileJava, compileKotlin ve processResources'dan once calissin
                 project.tasks.findByName("compileJava")?.dependsOn(generatePaperLoader)
                 project.tasks.findByName("compileKotlin")?.dependsOn(generatePaperLoader)
+                project.tasks.findByName("processResources")?.dependsOn(generatePaperLoader)
 
                 // Generated source'u sourceSets'e ekle
                 project.extensions.findByType(JavaPluginExtension::class.java)?.let { java ->
@@ -298,16 +345,14 @@ class RuntimeDependencyPlugin : Plugin<Project> {
             val id = artifact.moduleVersion.id
             val repoInfo = findRepositoryForArtifact(project, id.group, id.name, id.version)
 
-            if (repoInfo != null) {
-                result.add(
-                    DependencyInfo(
-                        groupId = id.group,
-                        artifactId = id.name,
-                        version = id.version,
-                        repository = repoInfo
-                    )
+            result.add(
+                DependencyInfo(
+                    groupId = id.group,
+                    artifactId = id.name,
+                    version = id.version,
+                    repository = repoInfo
                 )
-            }
+            )
         }
 
         return result
@@ -318,23 +363,62 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         group: String,
         name: String,
         version: String
-    ): RepositoryInfo? {
-        // Bilinen repository'leri tara
+    ): RepositoryInfo {
+        // Her repository'yi dene ve artifact'i bul
+        val artifactPath = "${group.replace('.', '/')}/${name}/${version}/${name}-${version}.pom"
+
         for (repo in project.repositories) {
             if (repo is MavenArtifactRepository) {
+                val repoUrl = repo.url.toString().removeSuffix("/")
                 val repoName = repo.name.ifEmpty { "maven" }
-                val repoUrl = repo.url.toString()
 
-                // Basit heuristic: ilk Maven repository'yi kullan
+                // Maven Central'i işaretle (Paper zaten sağlıyor ama dependency'yi kaydet)
+                if (isMavenCentral(repoUrl)) {
+                    return RepositoryInfo(
+                        name = "MavenCentral",
+                        url = repoUrl,
+                        isMavenCentral = true
+                    )
+                }
+
+                // Credential bilgilerini al
+                val credentials = try {
+                    repo.credentials
+                } catch (e: Exception) {
+                    null
+                }
+
+                val usernameProperty = if (credentials?.username != null) {
+                    "${repoName}.username"
+                } else null
+
+                val passwordProperty = if (credentials?.password != null) {
+                    "${repoName}.password"
+                } else null
+
                 return RepositoryInfo(
                     name = repoName,
-                    url = repoUrl
+                    url = repoUrl,
+                    usernameProperty = usernameProperty,
+                    passwordProperty = passwordProperty,
+                    isMavenCentral = false
                 )
             }
         }
 
-        // Default: Maven Central
-        return RepositoryInfo("central", "https://repo1.maven.org/maven2/")
+        // Default: Maven Central (Paper tarafından sağlanıyor)
+        return RepositoryInfo(
+            name = "MavenCentral",
+            url = "https://repo1.maven.org/maven2/",
+            isMavenCentral = true
+        )
+    }
+
+    private fun isMavenCentral(url: String): Boolean {
+        val normalizedUrl = url.removeSuffix("/").lowercase()
+        return normalizedUrl.contains("repo.maven.apache.org") ||
+               normalizedUrl.contains("repo1.maven.org") ||
+               normalizedUrl.contains("repo.maven.org")
     }
 
     private fun collectRepositories(project: Project): Map<String, RepositoryInfo> {
@@ -342,19 +426,40 @@ class RuntimeDependencyPlugin : Plugin<Project> {
 
         for (repo in project.repositories) {
             if (repo is MavenArtifactRepository) {
+                val repoUrl = repo.url.toString().removeSuffix("/")
+
+                // Maven Central'i skip et (Paper zaten sağlıyor)
+                if (isMavenCentral(repoUrl)) {
+                    continue
+                }
+
                 val name = repo.name.ifEmpty { "maven-${repos.size}" }
+
+                // Credential bilgilerini al
+                val credentials = try {
+                    repo.credentials
+                } catch (e: Exception) {
+                    null
+                }
+
+                val usernameProperty = if (credentials?.username != null) {
+                    "${name}.username"
+                } else null
+
+                val passwordProperty = if (credentials?.password != null) {
+                    "${name}.password"
+                } else null
+
                 repos[name] = RepositoryInfo(
                     name = name,
-                    url = repo.url.toString()
+                    url = repoUrl,
+                    usernameProperty = usernameProperty,
+                    passwordProperty = passwordProperty
                 )
             }
         }
 
-        // En azindan Maven Central ekle
-        if (repos.isEmpty()) {
-            repos["central"] = RepositoryInfo("central", "https://repo1.maven.org/maven2/")
-        }
-
+        // Not: Maven Central eklenmez, Paper tarafından zaten sağlanıyor
         return repos
     }
 

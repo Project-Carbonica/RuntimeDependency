@@ -64,32 +64,80 @@ build/runtime-dependencies/
 
 ## Private Repository
 
-### Using gradle.properties
+### How Credentials Work
+
+The plugin automatically detects credentials for private repositories based on the **repository ID** (name).
+
+For a repository with ID `"myRepo"`, the plugin looks for credentials in this order:
+1. **Environment Variables**: `MYREPO_USERNAME` and `MYREPO_PASSWORD`
+2. **System Properties**: `myRepo.username` and `myRepo.password`
+3. **gradle.properties**: `myRepo.username` and `myRepo.password`
+
+The repository ID is converted to uppercase and special characters (`.`, `-`) are replaced with `_` for environment variable names.
+
+### Example: Repository with ID "myRepo"
+
+#### Using Environment Variables (Recommended for Production)
+
+```bash
+export MYREPO_USERNAME=your_username
+export MYREPO_PASSWORD=your_password
+java -jar paper.jar
+```
+
+#### Using System Properties
+
+```bash
+java -DmyRepo.username=your_username -DmyRepo.password=your_password -jar paper.jar
+```
+
+#### Using gradle.properties (Build Time Only)
 
 ```properties
 myRepo.username=your_username
 myRepo.password=your_password
 ```
 
-### Using Environment Variables
-
-```bash
-export MYREPO_USERNAME=your_username
-export MYREPO_PASSWORD=your_password
-```
-
-### Repository Configuration
+### Example: Repository with ID "nexus-repo"
 
 ```kotlin
 repositories {
     maven {
-        name = "myRepo"
-        url = uri("https://private.company.com/maven")
+        name = "nexus-repo"  // Repository ID
+        url = uri("https://nexus.company.com/repository/maven-releases/")
     }
 }
 ```
 
-Credentials are automatically detected and applied.
+Runtime credentials:
+```bash
+# Environment variables (nexus-repo -> NEXUS_REPO)
+export NEXUS_REPO_USERNAME=admin
+export NEXUS_REPO_PASSWORD=secret123
+```
+
+### Example: Multiple Private Repositories
+
+```kotlin
+repositories {
+    maven {
+        name = "companyRepo"
+        url = uri("https://company.com/maven")
+    }
+    maven {
+        name = "thirdParty"
+        url = uri("https://third-party.com/maven")
+    }
+}
+```
+
+Runtime credentials:
+```bash
+export COMPANYREPO_USERNAME=user1
+export COMPANYREPO_PASSWORD=pass1
+export THIRDPARTY_USERNAME=user2
+export THIRDPARTY_PASSWORD=pass2
+```
 
 ## Paper Plugin Integration
 
