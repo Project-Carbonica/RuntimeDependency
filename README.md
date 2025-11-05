@@ -43,19 +43,13 @@ Automatically generates PluginLoader and updates paper-plugin.yml.
 
 See [USAGE.md](USAGE.md) for detailed configuration and examples.
 
-## Demo
-
-```bash
-./gradlew :app:run
-```
-
 ## Project Structure
 
 - `gradle-plugin/` - Plugin source code
-- `app/` - Demo application
 
 ## Commands
 
-- `./gradlew build` - Build project and download dependencies
-- `./gradlew downloadRuntimeDependencies` - Download dependencies only
-- `./gradlew generatePaperLoader` - Generate Paper PluginLoader
+- `./gradlew :gradle-plugin:build` - Build plugin
+- `./gradlew :gradle-plugin:publishToMavenLocal` - Publish to local Maven
+- `./gradlew downloadRuntimeDependencies` - Download dependencies (when using plugin)
+- `./gradlew generatePaperLoader` - Generate Paper PluginLoader (when Paper enabled)
