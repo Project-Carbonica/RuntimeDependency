@@ -92,5 +92,5 @@ jobs:
         run: |
           PROJECT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
           echo "🚀 Publishing version: $PROJECT_VERSION"
-          ./gradlew ${{ inputs.publish-task }} --no-daemon --stacktrace
+          ./gradlew :gradle-plugin:${{ inputs.publish-task }} --no-daemon --stacktrace
           echo "✅ Successfully published to Nexus"
