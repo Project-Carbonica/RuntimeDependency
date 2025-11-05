@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.6...v1.2.0) (2025-11-05)
+
+
+### Features
+
+* enhance private repository credential handling and documentation ([2f90802](https://github.com/Project-Carbonica/RuntimeDependency/commit/2f9080205cb4276a00ce38e5d277b17f7e70d7a5))
+
 ## [1.1.6](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.5...v1.1.6) (2025-11-05)
 
 
