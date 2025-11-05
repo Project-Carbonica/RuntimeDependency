@@ -42,8 +42,6 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         }
 
         project.afterEvaluate {
-            RepositoryUtils.detectAndApplyCredentials(project)
-
             if (paperExtension.enabled.get()) {
                 val deps = analyzeDependencies(project, runtimeDownload)
                 val repos = RepositoryUtils.collectAllRepositories(project)

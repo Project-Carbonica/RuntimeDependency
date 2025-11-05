@@ -50,21 +50,4 @@ object RepositoryUtils {
         return repos
     }
 
-    fun detectAndApplyCredentials(project: Project) {
-        project.repositories.withType(MavenArtifactRepository::class.java) {
-            if (url.scheme in listOf("http", "https")) {
-                val user = project.findProperty("${name}.username")?.toString()
-                    ?: System.getenv("${name.uppercase()}_USERNAME")
-                val pass = project.findProperty("${name}.password")?.toString()
-                    ?: System.getenv("${name.uppercase()}_PASSWORD")
-
-                if (user != null && pass != null) {
-                    credentials {
-                        username = user
-                        password = pass
-                    }
-                }
-            }
-        }
-    }
 }
