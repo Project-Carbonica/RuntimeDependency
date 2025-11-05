@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.3...v1.0.4) (2025-11-05)
+
+
+### Bug Fixes
+
+* added debug for nexus publish ([7ee6e42](https://github.com/Project-Carbonica/RuntimeDependency/commit/7ee6e426d740ff8468c3ccd40c89e85839a2a058))
+
 ## [1.0.3](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.2...v1.0.3) (2025-11-05)
 
 
