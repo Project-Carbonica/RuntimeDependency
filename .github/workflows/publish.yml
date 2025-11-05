@@ -86,14 +86,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Debug Nexus Credentials
-        run: |
-          echo "🔍 Checking Nexus credentials..."
-          echo "NEXUS_USERNAME is set: ${{ secrets.NEXUS_USERNAME != '' }}"
-          echo "NEXUS_PASSWORD is set: ${{ secrets.NEXUS_PASSWORD != '' }}"
-          echo "NEXUS_RELEASE_URL: ${{ secrets.NEXUS_RELEASE_URL }}"
-          echo "NEXUS_SNAPSHOT_URL: ${{ secrets.NEXUS_SNAPSHOT_URL }}"
-
       - name: Publish to Nexus
         env:
           NEXUS_RELEASE_URL: ${{ secrets.NEXUS_RELEASE_URL }}
@@ -109,3 +101,16 @@ jobs:
             --info \
             --no-daemon --stacktrace
           echo "✅ Successfully published to Nexus"
+
+  debug-nexus:
+    name: Debug Nexus Credentials
+    needs: [publish]
+    runs-on: arc-runner-set
+    steps:
+      - name: Print Nexus configuration
+        run: |
+          echo "🔍 Nexus Configuration:"
+          echo "NEXUS_USERNAME is set: ${{ secrets.NEXUS_USERNAME != '' }}"
+          echo "NEXUS_PASSWORD is set: ${{ secrets.NEXUS_PASSWORD != '' }}"
+          echo "NEXUS_RELEASE_URL: ${{ secrets.NEXUS_RELEASE_URL }}"
+          echo "NEXUS_SNAPSHOT_URL: ${{ secrets.NEXUS_SNAPSHOT_URL }}"
