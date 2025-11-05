@@ -62,6 +62,7 @@ publishing {
 
         if (nexusReleaseUrl != null && nexusSnapshotUrl != null) {
             maven {
+                name = "nexus"
                 url = uri(if (version.toString().endsWith("SNAPSHOT")) nexusSnapshotUrl else nexusReleaseUrl)
 
                 credentials {
