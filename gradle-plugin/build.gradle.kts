@@ -23,6 +23,11 @@ gradlePlugin {
 }
 
 publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
     repositories {
         maven {
             name = "nexus"
@@ -35,9 +40,9 @@ publishing {
                 }
             )
             credentials {
-                username = project.findProperty("nexusUsername")?.toString() 
+                username = project.findProperty("nexusUsername")?.toString()
                     ?: System.getenv("NEXUS_USERNAME")
-                password = project.findProperty("nexusPassword")?.toString() 
+                password = project.findProperty("nexusPassword")?.toString()
                     ?: System.getenv("NEXUS_PASSWORD")
             }
         }
