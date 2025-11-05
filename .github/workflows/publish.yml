@@ -28,9 +28,45 @@ on:
         required: true
 
 jobs:
+  build-versioned:
+    name: Build Versioned JAR
+    runs-on: arc-runner-set
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ inputs.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java-version }}
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with version
+        run: |
+          echo "📦 Building version: ${{ inputs.version }}"
+          ./gradlew clean build -Pversion=${{ inputs.version }} --no-daemon --stacktrace
+
+      - name: Upload JAR artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-files-${{ github.run_id }}
+          path: |
+            gradle-plugin/build/libs/*.jar
+          retention-days: 30
+
   publish:
     name: Publish to Nexus
     runs-on: arc-runner-set
+    needs: [build-versioned]
     timeout-minutes: 15
 
     steps:
@@ -70,5 +106,6 @@ jobs:
             -Pversion=${{ inputs.version }} \
             -PnexusUsername="${NEXUS_USERNAME}" \
             -PnexusPassword="${NEXUS_PASSWORD}" \
+            --info \
             --no-daemon --stacktrace
           echo "✅ Successfully published to Nexus"
