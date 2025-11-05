@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.3...v1.1.4) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed nexus variables for plugin ([ce37470](https://github.com/Project-Carbonica/RuntimeDependency/commit/ce37470a3474af04ce9a54d3ab8ec937777a6a0b))
+
 ## [1.1.3](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.1.2...v1.1.3) (2025-11-05)
 
 
