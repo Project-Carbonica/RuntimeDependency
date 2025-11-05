@@ -1,3 +1,11 @@
+## [1.0.5](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.4...v1.0.5) (2025-11-05)
+
+
+### Bug Fixes
+
+* changed ci-cd ([01d3780](https://github.com/Project-Carbonica/RuntimeDependency/commit/01d3780761c3c183840189f1d477b6087b583253))
+* changed publish.yml ([dd10bb0](https://github.com/Project-Carbonica/RuntimeDependency/commit/dd10bb0f166b3d21b54336997313abbff2361fbb))
+
 ## [1.0.4](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.0.3...v1.0.4) (2025-11-05)
 
 
