@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.4.0...v1.5.0) (2025-11-27)
+
+
+### Features
+
+* fix standolone and publish new version ([c4a0189](https://github.com/Project-Carbonica/RuntimeDependency/commit/c4a01891ef25ddcf37810526e98aac8ddde8bb3b))
+
 # [1.4.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.3.0...v1.4.0) (2025-11-05)
 
 
