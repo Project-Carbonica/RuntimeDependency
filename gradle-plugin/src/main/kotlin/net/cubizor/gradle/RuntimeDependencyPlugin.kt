@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.*
 import java.io.File
 
@@ -45,14 +46,6 @@ class RuntimeDependencyPlugin : Plugin<Project> {
             resourcesDir.set(project.layout.projectDirectory.dir("src/main/resources"))
         }
 
-        val configureStandaloneManifest = project.tasks.register("configureStandaloneManifest", ConfigureStandaloneManifestTask::class.java) {
-            group = "standalone"
-            description = "Configures JAR manifest for standalone mode"
-            mainClass.set("net.cubizor.gradle.launcher.LauncherBootstrap")
-            libraryPath.set(standaloneExtension.libraryPath)
-            actualMainClass.set(standaloneExtension.mainClass)
-        }
-
         project.afterEvaluate {
             val isPaperEnabled = paperExtension.enabled.get()
             val isStandaloneEnabled = standaloneExtension.enabled.get()
@@ -68,7 +61,7 @@ class RuntimeDependencyPlugin : Plugin<Project> {
             if (isPaperEnabled) {
                 configurePaperMode(project, paperExtension, generatePaperLoader, runtimeDownload)
             } else if (isStandaloneEnabled) {
-                configureStandaloneMode(project, standaloneExtension, configureStandaloneManifest, downloadRuntimeDependencies)
+                configureStandaloneMode(project, standaloneExtension, runtimeDownload, downloadRuntimeDependencies)
             } else {
                 // Default mode: just download dependencies
                 project.tasks.named("build") {
@@ -106,7 +99,7 @@ class RuntimeDependencyPlugin : Plugin<Project> {
     private fun configureStandaloneMode(
         project: Project,
         standaloneExtension: StandaloneExtension,
-        configureTask: org.gradle.api.tasks.TaskProvider<ConfigureStandaloneManifestTask>,
+        runtimeDownload: Configuration,
         downloadTask: org.gradle.api.tasks.TaskProvider<RuntimeDependencyTask>
     ) {
         val mainClassName = standaloneExtension.mainClass.get()
@@ -123,50 +116,67 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         }
 
         val libraryPath = standaloneExtension.libraryPath.get()
-        val includeBootstrap = standaloneExtension.includeBootstrapInJar.get()
-
-        // Add launcher sources to compilation
-        if (includeBootstrap) {
-            project.extensions.findByType<JavaPluginExtension>()?.let { java ->
-                val launcherSrcDir = project.file("${project.layout.buildDirectory.get().asFile}/generated/sources/launcher/kotlin")
-                java.sourceSets.getByName("main").java.srcDir(launcherSrcDir)
-                
-                // Copy launcher sources
-                project.tasks.findByName("compileKotlin")?.doFirst {
-                    copyLauncherSources(launcherSrcDir)
-                }
-            }
+        
+        // Get the list of runtime dependency JAR filenames
+        val dependencyJarNames = runtimeDownload.resolvedConfiguration.resolvedArtifacts.map { artifact ->
+            "${artifact.name}-${artifact.moduleVersion.id.version}.jar"
         }
 
-        // Configure JAR task
-        project.tasks.withType(Jar::class.java).configureEach {
+        // Register the dependency manifest task
+        val generateManifest = project.tasks.register("generateDependencyManifest", GenerateDependencyManifestTask::class.java) {
+            group = "runtime"
+            description = "Generates runtime-dependencies.txt in META-INF"
+            dependencies.set(dependencyJarNames)
+            outputDir.set(project.layout.buildDirectory.dir("resources/main"))
+        }
+
+        // Generate manifest before processResources
+        project.tasks.findByName("processResources")?.let { processResources ->
+            processResources.dependsOn(generateManifest)
+        }
+
+        // Get the jar task
+        val jarTask = project.tasks.named("jar", Jar::class.java)
+        
+        // Register the standalone JAR configuration task
+        val configureStandaloneJar = project.tasks.register("configureStandaloneJar", ConfigureStandaloneJarTask::class.java) {
+            group = "runtime"
+            description = "Configures JAR for standalone mode with BootstrapMain"
+            originalMainClass.set(mainClassName)
+            this.libraryPath.set(libraryPath)
+            inputJar.set(jarTask.flatMap { it.archiveFile })
+            outputJar.set(project.layout.buildDirectory.file("tmp/standalone-configured.jar"))
+            
+            dependsOn(jarTask)
+        }
+
+        // Configure the JAR task
+        jarTask.configure {
+            // Include the BootstrapMain class from plugin - this will be done by ConfigureStandaloneJarTask
+            // but we still need to set a temporary Main-Class for the initial JAR
             manifest {
                 attributes(
-                    "Main-Class" to "net.cubizor.gradle.launcher.LauncherBootstrap",
-                    "Runtime-Dependency-Main-Class" to mainClassName,
+                    "Main-Class" to mainClassName, // Will be replaced by ConfigureStandaloneJarTask
                     "Runtime-Dependency-Library-Path" to libraryPath,
                     "Implementation-Title" to project.name,
-                    "Implementation-Version" to project.version
+                    "Implementation-Version" to project.version.toString()
                 )
             }
+            
+            // Finalized by configureStandaloneJar
+            finalizedBy(configureStandaloneJar)
         }
 
         // Ensure dependencies are downloaded before build
         project.tasks.named("build") {
             dependsOn(downloadTask)
-            dependsOn(configureTask)
+            dependsOn(configureStandaloneJar)
         }
 
-        println("[RuntimeDependency] Standalone mode enabled")
+        println("[RuntimeDependency] Standalone mode enabled (Bootstrap)")
         println("[RuntimeDependency] Main-Class: $mainClassName")
         println("[RuntimeDependency] Library path: $libraryPath")
-    }
-
-    private fun copyLauncherSources(targetDir: File) {
-        targetDir.mkdirs()
-        // The launcher classes are already compiled in the plugin
-        // Users will need to add plugin classes to their runtime
-        println("[RuntimeDependency] Launcher bootstrap will be loaded from plugin JAR")
+        println("[RuntimeDependency] Dependencies: ${dependencyJarNames.joinToString(", ")}")
     }
 
     private fun analyzeDependencies(project: Project, configuration: Configuration): List<DependencyInfo> {

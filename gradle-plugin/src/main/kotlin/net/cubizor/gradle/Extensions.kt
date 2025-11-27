@@ -1,5 +1,6 @@
 package net.cubizor.gradle
 
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
 abstract class PaperExtension {
@@ -14,17 +15,49 @@ abstract class PaperExtension {
     }
 }
 
+/**
+ * Standalone mode extension for self-loading runtime dependencies.
+ * 
+ * This mode injects bytecode into the specified main class to automatically
+ * load runtime dependencies when the class is first accessed.
+ * 
+ * Features:
+ * - **Auto Injection**: Bytecode is injected into static initializer
+ * - **Selective Loading**: Only loads dependencies specified for this module
+ * - **Deduplication**: Same JAR won't be loaded twice across plugins
+ * - **No User Code Required**: Works transparently
+ * 
+ * Example:
+ * ```kotlin
+ * runtimeDependency {
+ *     standalone {
+ *         enabled.set(true)
+ *         mainClass.set("com.example.MyPlugin")
+ *         libraryPath.set("libs")
+ *     }
+ * }
+ * 
+ * dependencies {
+ *     runtimeDownload("com.google.code.gson:gson:2.10.1")
+ * }
+ * ```
+ */
 abstract class StandaloneExtension {
     abstract val enabled: Property<Boolean>
+    
+    /** 
+     * Main class where the loader will be injected.
+     * This class's static initializer will load the runtime dependencies.
+     */
     abstract val mainClass: Property<String>
+    
+    /** Path to runtime dependency JARs (relative to working directory) */
     abstract val libraryPath: Property<String>
-    abstract val includeBootstrapInJar: Property<Boolean>
 
     init {
         enabled.convention(false)
         mainClass.convention("")
-        libraryPath.convention("runtime-dependencies")
-        includeBootstrapInJar.convention(true)
+        libraryPath.convention("libs")
     }
 }
 

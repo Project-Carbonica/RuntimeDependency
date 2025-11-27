@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.cubizor.gradle"
-// Version is inherited from root gradle.properties
+version = "1.4.0"
 
 kotlin {
     jvmToolchain(21)

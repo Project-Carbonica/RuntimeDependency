@@ -1,15 +1,15 @@
 # Usage Guide
 
 RuntimeDependency plugin supports three modes:
+- **Standalone Mode** - For standalone Java/Kotlin applications
 - **Paper Mode** - For Minecraft Paper plugins
-- **Standalone Mode** - For standalone Java applications
 - **Basic Mode** - Just download dependencies (default)
 
 ---
 
 ## Standalone Mode
 
-For standalone Java/Kotlin applications that need runtime dependency loading.
+For standalone Java/Kotlin applications that need runtime dependency loading without embedding dependencies in the JAR.
 
 ### Quick Start
 
@@ -22,6 +22,7 @@ runtimeDependency {
     standalone {
         enabled.set(true)
         mainClass.set("com.example.MyApp")  // Your actual main class
+        libraryPath.set("libs")              // Optional, default: "libs"
     }
 }
 
@@ -37,37 +38,70 @@ dependencies {
 # Build your application
 ./gradlew build
 
+# Dependencies are downloaded to build/runtime-dependencies/
+# Copy them to your library path
+mkdir -p libs
+cp -r build/runtime-dependencies/* libs/
+
 # Run with automatic dependency loading
 java -jar build/libs/yourapp.jar
 ```
 
-The plugin automatically:
-1. Downloads dependencies to `build/runtime-dependencies/`
-2. Configures JAR manifest with bootstrap launcher
-3. Loads dependencies before your main class runs
-4. No manual classpath configuration needed
-
 ### How It Works
 
+The plugin uses a **Bootstrap ClassLoader** approach that is fully compatible with Java 21+:
+
 ```
-┌─────────────────────────────────────────┐
-│  java -jar yourapp.jar                  │
-└───────────────┬─────────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────────┐
-│  LauncherBootstrap (from plugin)        │
-│  1. Scans runtime-dependencies/         │
-│  2. Loads all JARs into classpath       │
-│  3. Invokes your main class             │
-└───────────────┬─────────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────────┐
-│  com.example.MyApp.main()               │
-│  Your application starts with all       │
-│  dependencies available!                │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  java -jar yourapp.jar                                      │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│  BootstrapMain (injected by plugin)                         │
+│                                                             │
+│  1. Reads Original-Main-Class from MANIFEST.MF              │
+│  2. Reads Library-Path from MANIFEST.MF                     │
+│  3. Reads META-INF/runtime-dependencies.txt                 │
+│  4. Creates RuntimeClassLoader (custom URLClassLoader)      │
+│  5. Loads all dependency JARs into RuntimeClassLoader       │
+│  6. Loads your main class through RuntimeClassLoader        │
+│  7. Invokes your main() method via reflection               │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│  com.example.MyApp.main(args)                               │
+│                                                             │
+│  ✅ All dependencies available!                             │
+│  ✅ No ClassNotFoundException!                               │
+│  ✅ Works on Java 21+!                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### JAR Structure
+
+After build, your JAR contains:
+
+```
+yourapp.jar
+├── META-INF/
+│   ├── MANIFEST.MF                    # Main-Class: BootstrapMain
+│   └── runtime-dependencies.txt       # List of required JARs
+├── net/cubizor/gradle/loader/
+│   ├── BootstrapMain.class            # Entry point (from plugin)
+│   └── BootstrapMain$RuntimeClassLoader.class
+└── com/example/
+    └── MyApp.class                    # Your application
+```
+
+### Manifest Attributes
+
+```
+Manifest-Version: 1.0
+Main-Class: net.cubizor.gradle.loader.BootstrapMain
+Original-Main-Class: com.example.MyApp
+Library-Path: libs
 ```
 
 ### Configuration Options
@@ -76,45 +110,49 @@ The plugin automatically:
 runtimeDependency {
     standalone {
         enabled.set(true)
-        mainClass.set("com.example.Main")              // Required: Your main class
-        libraryPath.set("runtime-dependencies")        // Optional: Library directory
-        includeBootstrapInJar.set(true)               // Optional: Include launcher
+        mainClass.set("com.example.Main")   // Required: Your main class
+        libraryPath.set("libs")              // Optional: Library directory (default: "libs")
     }
+    
+    // Optional: Change where dependencies are downloaded during build
+    outputDirectory.set("runtime-dependencies")  // default
+    
+    // Optional: Organize by artifact name
+    organizeByGroup.set(true)  // default: true
 }
-```
-
-### Advanced: Custom Library Path
-
-```kotlin
-runtimeDependency {
-    standalone {
-        enabled.set(true)
-        mainClass.set("com.example.Main")
-        libraryPath.set("libs")  // Custom directory
-    }
-    outputDirectory.set("libs")  // Must match libraryPath
-}
-```
-
-Run with custom path:
-```bash
-java -Druntime.dependency.library.path=/custom/path -jar yourapp.jar
 ```
 
 ### Distribution
 
-When distributing your app:
+When distributing your application:
+
 ```
-yourapp/
-  ├── yourapp.jar                    # Your application
-  └── runtime-dependencies/          # Copy this folder too!
-      ├── gson/
-      │   └── gson-2.10.1.jar
-      └── commons-lang3/
-          └── commons-lang3-3.14.0.jar
+myapp/
+├── myapp.jar                          # Your application JAR
+└── libs/                              # Library path (must match libraryPath setting)
+    ├── gson/
+    │   └── gson-2.10.1.jar
+    └── commons-lang3/
+        └── commons-lang3-3.14.0.jar
 ```
 
-Users just run: `java -jar yourapp.jar`
+Users simply run:
+```bash
+java -jar myapp.jar
+```
+
+### Custom Library Path at Runtime
+
+You can override the library path at runtime:
+
+```bash
+# Using system property
+java -Druntime.dependency.library.path=/custom/libs -jar myapp.jar
+
+# Or set working directory
+cd /path/to/myapp
+java -jar myapp.jar  # Uses ./libs relative to working directory
+```
 
 ---
 
@@ -485,15 +523,15 @@ Downloads Spring Boot and all its dependencies.
 | **Auto Loading** | ❌ No | ✅ Yes | ✅ Yes |
 | **Requires Paper** | ❌ | ❌ | ✅ |
 | **Build Time Download** | ✅ | ✅ | ❌ |
-| **Runtime Download** | ❌ | ❌ | ✅ |
-| **Manifest Config** | ❌ | ✅ Auto | ❌ |
-| **Distribution** | Manual | Automatic | Paper handles |
+| **Runtime Download** | ❌ | ❌ | ✅ (by Paper) |
+| **JAR Modification** | ❌ | ✅ Auto | ❌ |
+| **Java 21+ Compatible** | ✅ | ✅ | ✅ |
 
 ### Which Mode to Choose?
 
-- **Building a Paper plugin?** Use Paper Mode
-- **Building a standalone app?** Use Standalone Mode
-- **Need manual control?** Use Basic Mode (default)
+- **Building a Paper plugin?** → Use Paper Mode
+- **Building a standalone Java/Kotlin app?** → Use Standalone Mode  
+- **Need manual control over loading?** → Use Basic Mode (default)
 
 ---
 
@@ -503,35 +541,77 @@ Downloads Spring Boot and all its dependencies.
 
 **Problem:** `ClassNotFoundException` at runtime
 
-**Solution:** Ensure `runtime-dependencies/` folder is copied with your JAR.
+**Solutions:**
+1. Ensure the `libs/` folder (or your custom `libraryPath`) exists next to the JAR
+2. Copy dependencies: `cp -r build/runtime-dependencies/* libs/`
+3. Check that JAR names match in `META-INF/runtime-dependencies.txt`
 
-**Problem:** Custom main class not found
+**Problem:** Main class not found
 
-**Solution:** Verify `mainClass` in build.gradle.kts:
+**Solution:** Verify `mainClass` in build.gradle.kts uses fully qualified name:
 ```kotlin
 runtimeDependency {
     standalone {
-        mainClass.set("com.example.Main")  // Fully qualified name
+        mainClass.set("com.example.Main")  // NOT just "Main"
     }
 }
 ```
 
-**Problem:** Dependencies not loaded
+**Problem:** Dependencies not loading on Java 21+
 
-**Solution:** Check library path:
+**Solution:** This shouldn't happen with the Bootstrap approach. Check:
 ```bash
-java -Druntime.dependency.library.path=./runtime-dependencies -jar yourapp.jar
+# Verify manifest
+unzip -p yourapp.jar META-INF/MANIFEST.MF
+
+# Should show:
+# Main-Class: net.cubizor.gradle.loader.BootstrapMain
+# Original-Main-Class: com.example.Main
+```
+
+**Problem:** Library path not found
+
+**Solution:** Override at runtime:
+```bash
+java -Druntime.dependency.library.path=./my-libs -jar yourapp.jar
 ```
 
 ### Paper Mode Issues
 
 **Problem:** PluginLoader not found
 
-**Solution:** Ensure `paper-plugin.yml` exists and plugin is built after configuration.
+**Solution:** Ensure `paper-plugin.yml` exists and rebuild:
+```bash
+./gradlew clean build
+```
+
+**Problem:** Private repository authentication fails at runtime
+
+**Solution:** Set environment variables:
+```bash
+export MYREPO_USERNAME=your_username
+export MYREPO_PASSWORD=your_password
+java -jar paper.jar
+```
 
 ### General Issues
 
-**Problem:** Private repository authentication fails
+**Problem:** Dependencies not downloading
 
-**Solution:** Check credentials in `gradle.properties` and environment variables.
+**Solution:** Check network and repository access:
+```bash
+./gradlew downloadRuntimeDependencies --info
+```
+
+**Problem:** Build fails with "Both modes enabled"
+
+**Solution:** Only enable one mode:
+```kotlin
+runtimeDependency {
+    // Choose ONE:
+    standalone { enabled.set(true) }
+    // OR
+    paper { enabled.set(true) }
+}
+```
 
