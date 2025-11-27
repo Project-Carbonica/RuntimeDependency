@@ -24,7 +24,7 @@ public class MyPlugin {
         data.put("status", "success");
         
         String json = gson.toJson(data);
-        
+        // feat
         System.out.println("JSON output: " + json);
         System.out.println("MyPlugin completed successfully!");
     }
