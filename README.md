@@ -6,6 +6,7 @@ A Gradle plugin for runtime dependency management with support for standalone ap
 
 - **Standalone Mode**: Automatic runtime dependency loading for standalone Java/Kotlin applications
 - **Paper Mode**: Auto-generated PluginLoader for Paper plugins with Maven dependency resolution
+- **Velocity Mode**: Auto-generated dependency manager for Velocity proxy plugins
 - **Basic Mode**: Simple dependency download and organization
 - Zero-config dependency management with custom ClassLoader
 - Private repository support with authentication
@@ -97,6 +98,36 @@ The plugin automatically:
 - Updates `paper-plugin.yml` with the loader reference
 - Handles private repository authentication
 
+## Velocity Plugin Mode
+
+For Velocity proxy plugin developers:
+
+```kotlin
+plugins {
+    id("net.cubizor.runtime-dependency")
+}
+
+repositories {
+    maven("https://repo.papermc.io/repository/maven-public/")
+}
+
+runtimeDependency {
+    velocity {
+        enabled.set(true)
+    }
+}
+
+dependencies {
+    compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
+    
+    runtimeDownload("com.google.code.gson:gson:2.10.1")
+    runtimeDownload("org.apache.commons:commons-lang3:3.14.0")
+}
+```
+
+The plugin automatically generates a Velocity `PluginDependencyManager` that loads dependencies at runtime using Velocity's dependency API.
+
 ## Basic Mode
 
 Download and organize dependencies without automatic loading:
@@ -119,6 +150,7 @@ Dependencies are downloaded to `build/runtime-dependencies/`.
 |------|----------|--------------|---------------------|------------------|
 | Standalone | Java/Kotlin apps | ✅ Yes | ✅ Yes | ❌ No |
 | Paper | Paper plugins | ✅ Yes | ❌ No | ✅ Yes (by Paper) |
+| Velocity | Velocity plugins | ✅ Yes | ❌ No | ✅ Yes (by Velocity) |
 | Basic | Manual control | ❌ No | ✅ Yes | ❌ No |
 
 ## Documentation
