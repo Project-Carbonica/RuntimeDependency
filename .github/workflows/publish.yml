@@ -50,7 +50,7 @@ jobs:
         run: |
           PROJECT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
           echo "📦 Building version: $PROJECT_VERSION"
-          ./gradlew :gradle-plugin:clean :gradle-plugin:build --no-daemon --no-configuration-cache --stacktrace
+          ./gradlew :gradle-plugin:build --no-daemon --no-configuration-cache --stacktrace
 
       - name: Upload JAR artifacts
         uses: actions/upload-artifact@v4
