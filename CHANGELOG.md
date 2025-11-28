@@ -1,3 +1,21 @@
+# [2.0.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.6.1...v2.0.0) (2025-11-28)
+
+
+### Code Refactoring
+
+* remove Standalone and Velocity modes, keep only Paper mode ([1ee2d46](https://github.com/Project-Carbonica/RuntimeDependency/commit/1ee2d468c0fb257cee9ae94964d8982f8d098557))
+
+
+### BREAKING CHANGES
+
+* Removed Standalone and Velocity modes
+- Deleted InjectionTasks.kt and BootstrapMain.java
+- Removed VelocityExtension and StandaloneExtension from Extensions.kt
+- Simplified RuntimeDependencyPlugin to Paper-only mode
+- Removed GenerateVelocityUtilityTask from Tasks.kt
+- Deleted test-standalone module
+- Updated README.md and USAGE.md for Paper-only documentation
+
 ## [1.6.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.6.0...v1.6.1) (2025-11-28)
 
 
