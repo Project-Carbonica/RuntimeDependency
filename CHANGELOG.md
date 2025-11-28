@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.5.1...v1.6.0) (2025-11-28)
+
+
+### Bug Fixes
+
+* remove clean task to prevent Gradle 8.14 deadlock in CI ([ff754d6](https://github.com/Project-Carbonica/RuntimeDependency/commit/ff754d6aa54724ef4a9b2a682f54a2e6292ec466))
+
+
+### Features
+
+* Add Velocity mode for runtime dependency loading ([6259b04](https://github.com/Project-Carbonica/RuntimeDependency/commit/6259b0429e00551b6fad1da84b6ebd331502962c))
+
 ## [1.5.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.5.0...v1.5.1) (2025-11-27)
 
 
