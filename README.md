@@ -114,6 +114,8 @@ repositories {
 runtimeDependency {
     velocity {
         enabled.set(true)
+        utilityPackage.set("com.example.myplugin.loader")  // Optional
+        utilityClassName.set("VelocityRuntimeDependency")  // Optional
     }
 }
 
@@ -126,7 +128,23 @@ dependencies {
 }
 ```
 
-The plugin automatically generates a Velocity `PluginDependencyManager` that loads dependencies at runtime using Velocity's dependency API.
+The plugin generates a utility class that must be initialized in your plugin's constructor:
+
+```java
+@Plugin(id = "myplugin")
+public class MyVelocityPlugin {
+    @Inject
+    public MyVelocityPlugin(ProxyServer server, Logger logger) {
+        // Initialize runtime dependencies first!
+        VelocityRuntimeDependency.initialize(logger);
+        
+        // Now you can use runtime dependencies
+        Gson gson = new Gson();
+    }
+}
+```
+
+**Note:** Unlike Paper mode, Velocity requires manual initialization because Velocity doesn't have a built-in PluginLoader mechanism.
 
 ## Basic Mode
 
