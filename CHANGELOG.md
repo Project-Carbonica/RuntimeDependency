@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.0.0...v2.0.1) (2025-11-28)
+
+
+### Bug Fixes
+
+* add kapt task dependency for generatePaperLoader ([da5dae0](https://github.com/Project-Carbonica/RuntimeDependency/commit/da5dae0853199b03bad0f22d14fb5f4e54814bc9))
+
 # [2.0.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.6.1...v2.0.0) (2025-11-28)
 
 
