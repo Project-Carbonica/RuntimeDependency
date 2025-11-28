@@ -80,13 +80,17 @@ class RuntimeDependencyPlugin : Plugin<Project> {
             )
         }
 
-        // Wire task dependencies safely - avoid direct dependsOn which can conflict with kapt
+        // Wire task dependencies safely - ensure generatePaperLoader runs before any compilation
         project.tasks.configureEach {
-            when (name) {
-                "compileJava", "compileKotlin" -> {
+            when {
+                name == "compileJava" || name == "compileKotlin" -> {
                     dependsOn(generatePaperLoader)
                 }
-                "processResources" -> {
+                name == "processResources" -> {
+                    dependsOn(generatePaperLoader)
+                }
+                // Kapt support - ensure generated sources are available before stub generation
+                name.startsWith("kapt") && name.contains("Kotlin") -> {
                     dependsOn(generatePaperLoader)
                 }
             }
