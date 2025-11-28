@@ -1,7 +1,5 @@
 rootProject.name = "RuntimeDependency"
 
-include("test-standalone")
-
 pluginManagement {
     includeBuild("gradle-plugin")
 }

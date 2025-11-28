@@ -1,8 +1,28 @@
 package net.cubizor.gradle
 
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
+/**
+ * Paper mode extension for runtime dependency loading in Paper plugins.
+ *
+ * This mode generates a PluginLoader class that Paper will use to load
+ * dependencies at runtime from Maven repositories.
+ *
+ * Example:
+ * ```kotlin
+ * runtimeDependency {
+ *     paper {
+ *         enabled.set(true)
+ *         loaderPackage.set("com.example.loader")
+ *         loaderClassName.set("DependencyLoader")
+ *     }
+ * }
+ *
+ * dependencies {
+ *     runtimeDownload("com.google.code.gson:gson:2.10.1")
+ * }
+ * ```
+ */
 abstract class PaperExtension {
     abstract val enabled: Property<Boolean>
     abstract val loaderPackage: Property<String>
@@ -15,102 +35,6 @@ abstract class PaperExtension {
     }
 }
 
-/**
- * Velocity mode extension for runtime dependency loading in Velocity plugins.
- *
- * This mode generates a utility class that can be called from your Velocity plugin's
- * constructor to load runtime dependencies.
- *
- * Features:
- * - **Isolated ClassLoader**: Dependencies loaded in separate classloader
- * - **Thread Context**: Sets thread context classloader for dependency access
- * - **Logger Integration**: Uses Velocity's logger for dependency loading status
- *
- * Example:
- * ```kotlin
- * runtimeDependency {
- *     velocity {
- *         enabled.set(true)
- *         utilityPackage.set("com.example.myplugin.loader")
- *     }
- * }
- *
- * dependencies {
- *     runtimeDownload("com.google.code.gson:gson:2.10.1")
- * }
- * ```
- *
- * Usage in Velocity plugin:
- * ```java
- * @Plugin(id = "myplugin")
- * public class MyVelocityPlugin {
- *     @Inject
- *     public MyVelocityPlugin(ProxyServer server, Logger logger) {
- *         VelocityRuntimeDependency.initialize(logger);
- *         // Now you can use runtime dependencies
- *         Gson gson = new Gson();
- *     }
- * }
- * ```
- */
-abstract class VelocityExtension {
-    abstract val enabled: Property<Boolean>
-    abstract val utilityPackage: Property<String>
-    abstract val utilityClassName: Property<String>
-
-    init {
-        enabled.convention(false)
-        utilityPackage.convention("net.cubizor.loader")
-        utilityClassName.convention("VelocityRuntimeDependency")
-    }
-}
-
-/**
- * Standalone mode extension for self-loading runtime dependencies.
- * 
- * This mode injects bytecode into the specified main class to automatically
- * load runtime dependencies when the class is first accessed.
- * 
- * Features:
- * - **Auto Injection**: Bytecode is injected into static initializer
- * - **Selective Loading**: Only loads dependencies specified for this module
- * - **Deduplication**: Same JAR won't be loaded twice across plugins
- * - **No User Code Required**: Works transparently
- * 
- * Example:
- * ```kotlin
- * runtimeDependency {
- *     standalone {
- *         enabled.set(true)
- *         mainClass.set("com.example.MyPlugin")
- *         libraryPath.set("libs")
- *     }
- * }
- * 
- * dependencies {
- *     runtimeDownload("com.google.code.gson:gson:2.10.1")
- * }
- * ```
- */
-abstract class StandaloneExtension {
-    abstract val enabled: Property<Boolean>
-    
-    /** 
-     * Main class where the loader will be injected.
-     * This class's static initializer will load the runtime dependencies.
-     */
-    abstract val mainClass: Property<String>
-    
-    /** Path to runtime dependency JARs (relative to working directory) */
-    abstract val libraryPath: Property<String>
-
-    init {
-        enabled.convention(false)
-        mainClass.convention("")
-        libraryPath.convention("libs")
-    }
-}
-
 abstract class RuntimeDependencyExtension {
     abstract val outputDirectory: Property<String>
     abstract val organizeByGroup: Property<Boolean>
@@ -120,3 +44,4 @@ abstract class RuntimeDependencyExtension {
         organizeByGroup.convention(true)
     }
 }
+
