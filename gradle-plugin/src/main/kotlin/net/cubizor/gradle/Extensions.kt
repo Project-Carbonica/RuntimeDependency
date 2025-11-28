@@ -16,6 +16,56 @@ abstract class PaperExtension {
 }
 
 /**
+ * Velocity mode extension for runtime dependency loading in Velocity plugins.
+ *
+ * This mode generates a utility class that can be called from your Velocity plugin's
+ * constructor to load runtime dependencies.
+ *
+ * Features:
+ * - **Isolated ClassLoader**: Dependencies loaded in separate classloader
+ * - **Thread Context**: Sets thread context classloader for dependency access
+ * - **Logger Integration**: Uses Velocity's logger for dependency loading status
+ *
+ * Example:
+ * ```kotlin
+ * runtimeDependency {
+ *     velocity {
+ *         enabled.set(true)
+ *         utilityPackage.set("com.example.myplugin.loader")
+ *     }
+ * }
+ *
+ * dependencies {
+ *     runtimeDownload("com.google.code.gson:gson:2.10.1")
+ * }
+ * ```
+ *
+ * Usage in Velocity plugin:
+ * ```java
+ * @Plugin(id = "myplugin")
+ * public class MyVelocityPlugin {
+ *     @Inject
+ *     public MyVelocityPlugin(ProxyServer server, Logger logger) {
+ *         VelocityRuntimeDependency.initialize(logger);
+ *         // Now you can use runtime dependencies
+ *         Gson gson = new Gson();
+ *     }
+ * }
+ * ```
+ */
+abstract class VelocityExtension {
+    abstract val enabled: Property<Boolean>
+    abstract val utilityPackage: Property<String>
+    abstract val utilityClassName: Property<String>
+
+    init {
+        enabled.convention(false)
+        utilityPackage.convention("net.cubizor.loader")
+        utilityClassName.convention("VelocityRuntimeDependency")
+    }
+}
+
+/**
  * Standalone mode extension for self-loading runtime dependencies.
  * 
  * This mode injects bytecode into the specified main class to automatically

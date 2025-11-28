@@ -44,3 +44,5 @@ bin/
 
 .secrets
 .github/workflows/test-local.yml
+CLAUDE.md
+.serena

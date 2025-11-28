@@ -78,4 +78,14 @@ publishing {
 dependencies {
     implementation(gradleApi())
     implementation(kotlin("stdlib"))
+
+    // Maven Resolver for BootstrapMain runtime dependency resolution
+    implementation("org.apache.maven.resolver:maven-resolver-api:1.9.18")
+    implementation("org.apache.maven.resolver:maven-resolver-spi:1.9.18")
+    implementation("org.apache.maven.resolver:maven-resolver-util:1.9.18")
+    implementation("org.apache.maven.resolver:maven-resolver-impl:1.9.18")
+    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.18")
+    implementation("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
+    implementation("org.apache.maven:maven-resolver-provider:3.9.6")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
