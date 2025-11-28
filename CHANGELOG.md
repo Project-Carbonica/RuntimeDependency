@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.6.0...v1.6.1) (2025-11-28)
+
+
+### Bug Fixes
+
+* remove clean task from publish workflow to prevent Gradle 8.14 deadlock ([276dd27](https://github.com/Project-Carbonica/RuntimeDependency/commit/276dd27ec5697b7e5a155180d67e3d9faf373143))
+
 # [1.6.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.5.1...v1.6.0) (2025-11-28)
 
 
