@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.5.0...v1.5.1) (2025-11-27)
+
+
+### Bug Fixes
+
+* revert version to use property fallback for flexibility ([0713cd7](https://github.com/Project-Carbonica/RuntimeDependency/commit/0713cd783b6f7420f1312c2151c57a217fb2727e))
+
 # [1.5.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v1.4.0...v1.5.0) (2025-11-27)
 
 
