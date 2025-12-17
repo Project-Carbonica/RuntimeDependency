@@ -1,4 +1,4 @@
-package net.cubizor.gradle
+package net.cubizor.runtimedependency
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection

@@ -1,12 +1,10 @@
-package net.cubizor.gradle
+package net.cubizor.runtimedependency
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.*
 
 class RuntimeDependencyPlugin : Plugin<Project> {
     override fun apply(project: Project) {
