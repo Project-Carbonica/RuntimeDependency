@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.0...v2.1.1) (2025-12-17)
+
+
+### Bug Fixes
+
+* add Nexus release and snapshot URLs to workflow configuration ([e2d42bb](https://github.com/Project-Carbonica/RuntimeDependency/commit/e2d42bb483a67b5f97e43404bf9a8d439b9277c2))
+
 # [2.1.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.0.1...v2.1.0) (2025-12-17)
 
 
