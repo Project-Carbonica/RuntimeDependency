@@ -49,6 +49,16 @@ class RuntimeDependencyPlugin : Plugin<Project> {
             val isPaperEnabled = paperExtension.enabled.get()
 
             if (isPaperEnabled) {
+                // Auto-detect plugin package if user hasn't customized it
+                val currentPackage = paperExtension.loaderPackage.get()
+                if (currentPackage == "net.cubizor.loader") {
+                    detectPluginPackage(project)?.let { detectedPackage ->
+                        generatePaperLoader.configure {
+                            loaderPackage.set(detectedPackage)
+                        }
+                    }
+                }
+                
                 configurePaperMode(project, paperExtension, generatePaperLoader, runtimeDownload)
             } else {
                 // Default mode: just download dependencies
@@ -95,6 +105,49 @@ class RuntimeDependencyPlugin : Plugin<Project> {
                 }
             }
         }
+    }
+
+    /**
+     * Detects the plugin's main package from plugin.yml or paper-plugin.yml.
+     * Falls back to project.group if not found.
+     */
+    private fun detectPluginPackage(project: Project): String? {
+        val resourcesDir = project.layout.projectDirectory.dir("src/main/resources").asFile
+        val pluginYmlFiles = listOf(
+            resourcesDir.resolve("paper-plugin.yml"),
+            resourcesDir.resolve("plugin.yml")
+        )
+
+        for (ymlFile in pluginYmlFiles) {
+            if (!ymlFile.exists()) continue
+
+            try {
+                val mainClassLine = ymlFile.readLines()
+                    .firstOrNull { it.trim().startsWith("main:") }
+                    ?: continue
+
+                val mainClass = mainClassLine.substringAfter("main:")
+                    .trim()
+                    .trim('"', '\'')
+
+                if (mainClass.isNotBlank() && mainClass.contains('.')) {
+                    val detectedPackage = mainClass.substringBeforeLast('.')
+                    project.logger.lifecycle("[RuntimeDependency] Detected plugin package from ${ymlFile.name}: $detectedPackage")
+                    return detectedPackage
+                }
+            } catch (e: Exception) {
+                project.logger.warn("[RuntimeDependency] Failed to read ${ymlFile.name}: ${e.message}")
+            }
+        }
+
+        // Fallback to project.group if available
+        val projectGroup = project.group.toString()
+        if (projectGroup.isNotBlank() && projectGroup != "unspecified") {
+            project.logger.lifecycle("[RuntimeDependency] Using project.group as package: $projectGroup")
+            return projectGroup
+        }
+
+        return null
     }
 
     private fun analyzeDependencies(project: Project, configuration: Configuration): List<DependencyInfo> {

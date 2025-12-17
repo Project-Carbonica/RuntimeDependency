@@ -14,25 +14,32 @@ object RepositoryUtils {
 
     fun collectAllRepositories(project: Project): Map<String, RepositoryInfo> {
         val repos = mutableMapOf<String, RepositoryInfo>()
+        var nextIndex = 0
 
+        // Collect from project repositories
+        // NOTE: Repositories defined in settings.gradle.kts dependencyResolutionManagement
+        // are NOT included here due to Gradle API limitations.
+        // Users must declare repositories in both settings.gradle.kts AND build.gradle.kts
         project.repositories.forEach { repo ->
             if (repo is MavenArtifactRepository) {
                 val repoUrl = repo.url.toString().removeSuffix("/")
-                val repoName = repo.name.ifEmpty { "maven-${repos.size}" }
-
+                
+                // Skip Maven Central
                 if (isMavenCentral(repoUrl)) {
                     return@forEach
                 }
 
+                // Skip duplicates
                 if (repos.values.any { it.url == repoUrl }) {
                     return@forEach
                 }
 
-                val hasCredentialsConfigured = try {
+                val repoName = repo.name.ifEmpty { "maven-$nextIndex" }
+                nextIndex++
+
+                val hasCredentials = try {
                     val creds = repo.credentials
-                    val username = creds.username
-                    val password = creds.password
-                    username != null && password != null
+                    creds.username != null && creds.password != null
                 } catch (e: Exception) {
                     false
                 }
@@ -40,8 +47,8 @@ object RepositoryUtils {
                 repos[repoName] = RepositoryInfo(
                     name = repoName,
                     url = repoUrl,
-                    usernameProperty = if (hasCredentialsConfigured) "${repoName}.username" else null,
-                    passwordProperty = if (hasCredentialsConfigured) "${repoName}.password" else null,
+                    usernameProperty = if (hasCredentials) "${repoName}.username" else null,
+                    passwordProperty = if (hasCredentials) "${repoName}.password" else null,
                     isMavenCentral = false
                 )
             }
