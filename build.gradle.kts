@@ -1,6 +1,3 @@
-// Root build file that delegates tasks to included builds
-
-// Since gradle-plugin is an included build (composite build), we need to invoke tasks using includedBuild
 tasks.register("test") {
     group = "verification"
     description = "Runs all tests in included builds"
@@ -35,4 +32,3 @@ tasks.register("publish") {
 
     dependsOn(gradle.includedBuild("gradle-plugin").task(":publish"))
 }
-

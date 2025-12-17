@@ -5,7 +5,10 @@ plugins {
 }
 
 group = "net.cubizor.gradle"
-version = findProperty("version") ?: "1.0.0"
+version = project.findProperty("version") as String? ?: "1.0.0"
+
+print("ver:" + version)
+
 
 kotlin {
     jvmToolchain(21)
