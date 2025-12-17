@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.1...v2.1.2) (2025-12-17)
+
+
+### Bug Fixes
+
+* publish keys ([0afcfcd](https://github.com/Project-Carbonica/RuntimeDependency/commit/0afcfcd7fbc81980ff9a9afcb6415c8a87004348))
+
 ## [2.1.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.0...v2.1.1) (2025-12-17)
 
 
