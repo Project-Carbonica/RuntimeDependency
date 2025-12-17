@@ -1,3 +1,19 @@
+# [2.1.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.0.1...v2.1.0) (2025-12-17)
+
+
+### Bug Fixes
+
+* add auto-detection of plugin package and update README with repository declaration instructions ([9d2a393](https://github.com/Project-Carbonica/RuntimeDependency/commit/9d2a393044753d4f0d2ece93cfbad671a6e74e25))
+* add CI/CD pipeline and update release configuration ([db74627](https://github.com/Project-Carbonica/RuntimeDependency/commit/db746274753f72a026ea261b5961191df5777d4b))
+* deleted test plugin ([fd66f13](https://github.com/Project-Carbonica/RuntimeDependency/commit/fd66f13d5cfb0001e2b495cbf83b10d75170e3dc))
+* enable recursive submodule checkout in build-test.yml ([2bfd98d](https://github.com/Project-Carbonica/RuntimeDependency/commit/2bfd98d7a409010589e8a2f0769d9cfad892546a))
+* update build-test.yml to use GITHUB_TOKEN for submodule checkout ([30757b1](https://github.com/Project-Carbonica/RuntimeDependency/commit/30757b112934e19791bf013d30dfce542ef03888))
+
+
+### Features
+
+* add root build file for managing included builds ([b6158d4](https://github.com/Project-Carbonica/RuntimeDependency/commit/b6158d4da14433ec0f39c5009fe500f5656b060d))
+
 ## [2.0.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.0.0...v2.0.1) (2025-11-28)
 
 
