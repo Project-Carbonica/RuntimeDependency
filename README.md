@@ -84,14 +84,13 @@ See [USAGE.md](USAGE.md) for detailed configuration, private repository setup, a
 ## Project Structure
 
 ```
-gradle-plugin/
-  src/main/
-    kotlin/net/cubizor/gradle/
-      RuntimeDependencyPlugin.kt   # Main plugin
-      Tasks.kt                     # Download & Paper loader tasks
-      Extensions.kt                # DSL extensions
-      Models.kt                    # Data classes
-      RepositoryUtils.kt           # Repository helpers
+src/main/
+  kotlin/net/cubizor/runtimedependency/
+    RuntimeDependencyPlugin.kt   # Main plugin
+    Tasks.kt                     # Download & Paper loader tasks
+    Extensions.kt                # DSL extensions
+    Models.kt                    # Data classes
+    RepositoryUtils.kt           # Repository helpers
 ```
 
 ## Gradle Tasks

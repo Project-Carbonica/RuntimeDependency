@@ -7,8 +7,6 @@ plugins {
 group = "net.cubizor.runtimedependency"
 version = project.findProperty("version") as String? ?: "1.0.0"
 
-print("ver:" + version)
-
 
 kotlin {
     jvmToolchain(21)
@@ -18,7 +16,7 @@ gradlePlugin {
     plugins {
         create("runtimeDependency") {
             id = "net.cubizor.runtime-dependency"
-            implementationClass = "net.cubizor.gradle.RuntimeDependencyPlugin"
+            implementationClass = "net.cubizor.runtimedependency.RuntimeDependencyPlugin"
             displayName = "Runtime Dependency Plugin"
             description = "Downloads and organizes runtime dependencies with automatic Paper PluginLoader generation"
         }
