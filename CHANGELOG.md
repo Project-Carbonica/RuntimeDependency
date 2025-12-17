@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.2...v2.1.3) (2025-12-17)
+
+
+### Bug Fixes
+
+* update release configuration and add gradle properties for build caching ([8eb0b54](https://github.com/Project-Carbonica/RuntimeDependency/commit/8eb0b54c16aa9e476b214f74dd09f66ae18a09f5))
+
 ## [2.1.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.1...v2.1.2) (2025-12-17)
 
 
