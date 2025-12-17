@@ -1,3 +1,15 @@
+# [2.2.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.3...v2.2.0) (2025-12-17)
+
+
+### Bug Fixes
+
+* remove unnecessary gradle properties from release assets configuration ([1000773](https://github.com/Project-Carbonica/RuntimeDependency/commit/1000773b75bb1dc5b309786493b60138f846b76e))
+
+
+### Features
+
+* restructure Gradle build configuration and update package names for RuntimeDependency ([7bd0a02](https://github.com/Project-Carbonica/RuntimeDependency/commit/7bd0a023829f54aa0af3636887053a4f3663452a))
+
 ## [2.1.3](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.2...v2.1.3) (2025-12-17)
 
 
