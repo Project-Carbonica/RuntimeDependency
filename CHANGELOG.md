@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.2.0...v2.2.1) (2025-12-17)
+
+
+### Bug Fixes
+
+* update package name for RuntimeDependencyPlugin and clean up project structure ([d20f89f](https://github.com/Project-Carbonica/RuntimeDependency/commit/d20f89f94c27fbd0ba9ca45bbb2f78cd697f60db))
+
 # [2.2.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.1.3...v2.2.0) (2025-12-17)
 
 
