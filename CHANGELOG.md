@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.2.1...v2.2.2) (2026-01-02)
+
+
+### Bug Fixes
+
+* restrict credential collection and authentication to HTTP/HTTPS repositories ([c47e754](https://github.com/Project-Carbonica/RuntimeDependency/commit/c47e754575a735ca502e172c0474197649f9cab7))
+
 ## [2.2.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.2.0...v2.2.1) (2025-12-17)
 
 
