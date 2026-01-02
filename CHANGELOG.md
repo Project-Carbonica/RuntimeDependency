@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.2.2...v2.3.0) (2026-01-02)
+
+
+### Features
+
+* add support for local Maven repositories in RepositoryInfo ([15e4d85](https://github.com/Project-Carbonica/RuntimeDependency/commit/15e4d850c174ec27127fa3d26a9124b58a746a67))
+
 ## [2.2.2](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.2.1...v2.2.2) (2026-01-02)
 
 
