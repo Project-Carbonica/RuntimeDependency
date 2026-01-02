@@ -189,13 +189,16 @@ class RuntimeDependencyPlugin : Plugin<Project> {
                         continue
                     }
 
+                    val isMavenLocal = RepositoryUtils.isMavenLocal(repoUrl)
+
                     privateRepos.add(
                         RepositoryInfo(
                             name = repoName,
                             url = repoUrl,
-                            usernameProperty = "${repoName}.username",
-                            passwordProperty = "${repoName}.password",
-                            isMavenCentral = false
+                            usernameProperty = if (!isMavenLocal) "${repoName}.username" else null,
+                            passwordProperty = if (!isMavenLocal) "${repoName}.password" else null,
+                            isMavenCentral = false,
+                            isMavenLocal = isMavenLocal
                         )
                     )
                 }

@@ -12,6 +12,13 @@ object RepositoryUtils {
                normalizedUrl.contains("repo.maven.org")
     }
 
+    fun isMavenLocal(url: String): Boolean {
+        val normalizedUrl = url.removeSuffix("/").lowercase()
+        return normalizedUrl.startsWith("file://") ||
+               normalizedUrl.startsWith("file:") ||
+               normalizedUrl.contains("/.m2/repository")
+    }
+
     fun collectAllRepositories(project: Project): Map<String, RepositoryInfo> {
         val repos = mutableMapOf<String, RepositoryInfo>()
         var nextIndex = 0
@@ -34,7 +41,9 @@ object RepositoryUtils {
                     return@forEach
                 }
 
-                val repoName = repo.name.ifEmpty { "maven-$nextIndex" }
+                val repoName = repo.name.ifEmpty {
+                    if (isMavenLocal(repoUrl)) "MavenLocal" else "maven-$nextIndex"
+                }
                 nextIndex++
 
                 // Only collect credentials for HTTP/HTTPS repositories
@@ -56,7 +65,8 @@ object RepositoryUtils {
                     url = repoUrl,
                     usernameProperty = if (hasCredentials) "${repoName}.username" else null,
                     passwordProperty = if (hasCredentials) "${repoName}.password" else null,
-                    isMavenCentral = false
+                    isMavenCentral = false,
+                    isMavenLocal = isMavenLocal(repoUrl)
                 )
             }
         }

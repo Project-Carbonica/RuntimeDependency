@@ -14,5 +14,6 @@ data class RepositoryInfo(
     val url: String,
     val usernameProperty: String? = null,
     val passwordProperty: String? = null,
-    val isMavenCentral: Boolean = false
+    val isMavenCentral: Boolean = false,
+    val isMavenLocal: Boolean = false
 ) : Serializable
