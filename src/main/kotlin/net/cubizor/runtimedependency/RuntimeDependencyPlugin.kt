@@ -17,21 +17,41 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         val paperExtension = project.objects.newInstance(PaperExtension::class.java)
         (extension as org.gradle.api.plugins.ExtensionAware).extensions.add("paper", paperExtension)
 
+        // Configuration for remote dependencies (Maven Central, private repos with HTTP/HTTPS)
         val runtimeDownload = project.configurations.create("runtimeDownload") {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+        }
+
+        // Configuration for local test dependencies (MavenLocal) that are bundled in the JAR
+        // These dependencies will NOT be added to Paper's PluginLoader but will be in implementation
+        val runtimeLocalTest = project.configurations.create("runtimeLocalTest") {
             isCanBeConsumed = false
             isCanBeResolved = true
         }
 
         project.configurations.named("implementation") {
             extendsFrom(runtimeDownload)
+            extendsFrom(runtimeLocalTest)  // Bundle local deps automatically
         }
 
         val downloadRuntimeDependencies = project.tasks.register("downloadRuntimeDependencies", RuntimeDependencyTask::class.java) {
             group = "runtime"
             description = "Downloads and organizes runtime dependencies"
             runtimeConfiguration.from(runtimeDownload)
+            runtimeConfiguration.from(runtimeLocalTest)
             outputDir.set(project.layout.buildDirectory.dir(extension.outputDirectory))
             organizeByGroup.set(extension.organizeByGroup)
+        }
+
+        // Configure JAR task to include runtimeLocalTest dependencies
+        project.afterEvaluate {
+            project.tasks.named("jar", org.gradle.jvm.tasks.Jar::class.java) {
+                from({
+                    runtimeLocalTest.filter { it.exists() }.map { if (it.isDirectory) it else project.zipTree(it) }
+                })
+                duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
+            }
         }
 
         val generatePaperLoader = project.tasks.register("generatePaperLoader", GeneratePaperLoaderTask::class.java) {
@@ -73,6 +93,8 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         generatePaperLoader: org.gradle.api.tasks.TaskProvider<GeneratePaperLoaderTask>,
         runtimeDownload: Configuration
     ) {
+        // Only analyze runtimeDownload configuration for Paper loader
+        // runtimeLocalTest deps should be shadowJar'd, not loaded at runtime
         val deps = analyzeDependencies(project, runtimeDownload)
         val repos = RepositoryUtils.collectAllRepositories(project)
 
@@ -160,7 +182,8 @@ class RuntimeDependencyPlugin : Plugin<Project> {
                     groupId = id.group,
                     artifactId = id.name,
                     version = id.version,
-                    repository = repoInfo
+                    repository = repoInfo,
+                    isFromMavenLocal = false  // runtimeDownload only has remote deps
                 )
             )
         }

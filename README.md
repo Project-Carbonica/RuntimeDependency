@@ -50,6 +50,29 @@ The plugin automatically:
 - Updates `paper-plugin.yml` with the loader reference
 - Handles private repository authentication
 
+### Local Testing with MavenLocal
+
+For testing with local dependencies (e.g., from `~/.m2/repository`), use `runtimeLocalTest`:
+
+```kotlin
+dependencies {
+    runtimeDownload("com.example:remote-lib:1.0.0")        // ✅ Loaded at runtime by Paper
+    runtimeLocalTest("com.example:local-lib:1.0.0-SNAPSHOT") // ⚠️ Must be shadowJar'd
+}
+```
+
+**Important**: Dependencies in `runtimeLocalTest` are **NOT** added to Paper's PluginLoader because Paper's resolver doesn't support `file://` protocol. You must use a shadow plugin to bundle these dependencies:
+
+```kotlin
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+tasks.shadowJar {
+    configurations = listOf(project.configurations.getByName("runtimeLocalTest"))
+}
+```
+
 **Package Detection**: The loader will be generated in your plugin's package (e.g., if your main class is `com.example.shop.ShopPlugin`, the loader will be in `com.example.shop`). You can override this by explicitly setting `loaderPackage.set("custom.package")`.
 
 **Repository Declaration**: If you have repositories in `settings.gradle.kts` `dependencyResolutionManagement` block, you must also declare them in your project's `build.gradle.kts` for Paper mode to include them in the generated loader.

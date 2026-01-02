@@ -84,7 +84,8 @@ abstract class GeneratePaperLoaderTask : DefaultTask() {
         outputFile.parentFile.mkdirs()
         outputFile.writeText(loaderClass)
 
-        println("Generated Paper PluginLoader: ${outputFile.absolutePath}")
+        println("✅ Generated Paper PluginLoader: ${outputFile.absolutePath}")
+        println("   Runtime dependencies: ${deps.size}")
 
         updatePluginYml(packageName, className)
     }
@@ -95,7 +96,9 @@ abstract class GeneratePaperLoaderTask : DefaultTask() {
         deps: List<DependencyInfo>,
         repos: Map<String, RepositoryInfo>
     ): String {
-        val repoMap = repos.filter { !it.value.isMavenCentral }
+        // Filter out Maven Central AND Maven Local (file://) repositories
+        // Paper's Maven resolver doesn't support file:// protocol
+        val repoMap = repos.filter { !it.value.isMavenCentral && !it.value.isMavenLocal }
         val needsAuth = repoMap.values.any { it.usernameProperty != null || it.passwordProperty != null }
         val authImport = if (needsAuth) {
             "import org.eclipse.aether.util.repository.AuthenticationBuilder;"
@@ -105,10 +108,8 @@ abstract class GeneratePaperLoaderTask : DefaultTask() {
             val builderCode = StringBuilder()
             builderCode.append("        RemoteRepository.Builder ${repo.name}Builder = new RemoteRepository.Builder(\"${repo.name}\", \"default\", \"${repo.url}\");")
 
-            // Only apply authentication for HTTP/HTTPS repositories
-            // File protocol (mavenLocal) does not support authentication
-            val isFileProtocol = repo.url.startsWith("file://") || repo.url.startsWith("file:")
-            if (!isFileProtocol && repo.usernameProperty != null && repo.passwordProperty != null) {
+            // Apply authentication if credentials are provided
+            if (repo.usernameProperty != null && repo.passwordProperty != null) {
                 builderCode.append("\n")
                 val envPrefix = repo.name.uppercase().replace("-", "_").replace(".", "_")
                 builderCode.append("        // Try environment variable first, then system property\n")

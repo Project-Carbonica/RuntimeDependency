@@ -41,15 +41,15 @@ object RepositoryUtils {
                     return@forEach
                 }
 
+                val isLocal = isMavenLocal(repoUrl)
                 val repoName = repo.name.ifEmpty {
-                    if (isMavenLocal(repoUrl)) "MavenLocal" else "maven-$nextIndex"
+                    if (isLocal) "MavenLocal" else "maven-$nextIndex"
                 }
-                nextIndex++
+                if (!isLocal) nextIndex++
 
-                // Only collect credentials for HTTP/HTTPS repositories
+                // Collect credentials for HTTP/HTTPS repositories
                 // File protocol (mavenLocal) does not support authentication
-                val isFileProtocol = repoUrl.startsWith("file://") || repoUrl.startsWith("file:")
-                val hasCredentials = if (!isFileProtocol) {
+                val hasCredentials = if (!isLocal) {
                     try {
                         val creds = repo.credentials
                         creds.username != null && creds.password != null
@@ -66,7 +66,7 @@ object RepositoryUtils {
                     usernameProperty = if (hasCredentials) "${repoName}.username" else null,
                     passwordProperty = if (hasCredentials) "${repoName}.password" else null,
                     isMavenCentral = false,
-                    isMavenLocal = isMavenLocal(repoUrl)
+                    isMavenLocal = isLocal
                 )
             }
         }

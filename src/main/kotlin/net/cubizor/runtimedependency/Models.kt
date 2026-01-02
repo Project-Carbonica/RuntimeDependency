@@ -6,7 +6,8 @@ data class DependencyInfo(
     val groupId: String,
     val artifactId: String,
     val version: String,
-    val repository: RepositoryInfo
+    val repository: RepositoryInfo,
+    val isFromMavenLocal: Boolean = false
 ) : Serializable
 
 data class RepositoryInfo(
