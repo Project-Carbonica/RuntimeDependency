@@ -105,7 +105,10 @@ abstract class GeneratePaperLoaderTask : DefaultTask() {
             val builderCode = StringBuilder()
             builderCode.append("        RemoteRepository.Builder ${repo.name}Builder = new RemoteRepository.Builder(\"${repo.name}\", \"default\", \"${repo.url}\");")
 
-            if (repo.usernameProperty != null && repo.passwordProperty != null) {
+            // Only apply authentication for HTTP/HTTPS repositories
+            // File protocol (mavenLocal) does not support authentication
+            val isFileProtocol = repo.url.startsWith("file://") || repo.url.startsWith("file:")
+            if (!isFileProtocol && repo.usernameProperty != null && repo.passwordProperty != null) {
                 builderCode.append("\n")
                 val envPrefix = repo.name.uppercase().replace("-", "_").replace(".", "_")
                 builderCode.append("        // Try environment variable first, then system property\n")

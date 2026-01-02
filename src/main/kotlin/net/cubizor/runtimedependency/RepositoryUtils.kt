@@ -37,10 +37,17 @@ object RepositoryUtils {
                 val repoName = repo.name.ifEmpty { "maven-$nextIndex" }
                 nextIndex++
 
-                val hasCredentials = try {
-                    val creds = repo.credentials
-                    creds.username != null && creds.password != null
-                } catch (e: Exception) {
+                // Only collect credentials for HTTP/HTTPS repositories
+                // File protocol (mavenLocal) does not support authentication
+                val isFileProtocol = repoUrl.startsWith("file://") || repoUrl.startsWith("file:")
+                val hasCredentials = if (!isFileProtocol) {
+                    try {
+                        val creds = repo.credentials
+                        creds.username != null && creds.password != null
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
                     false
                 }
 
