@@ -95,7 +95,7 @@ class RuntimeDependencyPlugin : Plugin<Project> {
     ) {
         // Only analyze runtimeDownload configuration for Paper loader
         // runtimeLocalTest deps should be shadowJar'd, not loaded at runtime
-        val deps = analyzeDependencies(project, runtimeDownload)
+        val deps = analyzeDependencies(project, runtimeDownload, paperExtension.excludes.get())
         val repos = RepositoryUtils.collectAllRepositories(project)
 
         generatePaperLoader.configure {
@@ -170,11 +170,30 @@ class RuntimeDependencyPlugin : Plugin<Project> {
         return null
     }
 
-    private fun analyzeDependencies(project: Project, configuration: Configuration): List<DependencyInfo> {
+    private fun analyzeDependencies(project: Project, configuration: Configuration, excludes: List<String>): List<DependencyInfo> {
         val result = mutableListOf<DependencyInfo>()
 
         configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
             val id = artifact.moduleVersion.id
+            val groupArtifact = "${id.group}:${id.name}"
+
+            // Check if excluded
+            val isExcluded = excludes.any { pattern ->
+                // Simple wildcard support: "com.example.*" -> startsWith("com.example.")
+                // Or exact match: "com.example:mylib"
+                if (pattern.endsWith("*")) {
+                    val prefix = pattern.dropLast(1)
+                    groupArtifact.startsWith(prefix)
+                } else {
+                    groupArtifact == pattern
+                }
+            }
+
+            if (isExcluded) {
+                project.logger.info("[RuntimeDependency] Excluding dependency from loader: $groupArtifact")
+                return@forEach
+            }
+
             val repoInfo = findRepositoryForArtifact(project)
 
             result.add(

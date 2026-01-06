@@ -50,6 +50,23 @@ The plugin automatically:
 - Updates `paper-plugin.yml` with the loader reference
 - Handles private repository authentication
 
+### Excluding Dependencies
+
+If you are using a library that provides common dependencies (like `mckotlin` for Kotlin stdlib), you can exclude them from being loaded by Paper's loader:
+
+```kotlin
+runtimeDependency {
+    paper {
+        enabled.set(true)
+        // Exclude Kotlin and Coroutines from loader (let mckotlin handle them)
+        excludes.set(listOf(
+            "org.jetbrains.kotlin:*",
+            "org.jetbrains.kotlinx:*"
+        ))
+    }
+}
+```
+
 ### Local Testing with MavenLocal
 
 For testing with local dependencies (e.g., from `~/.m2/repository`), use `runtimeLocalTest`:
