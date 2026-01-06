@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.4.0...v2.5.0) (2026-01-06)
+
+
+### Features
+
+* add support for excluding dependencies in runtime loader ([356c3b0](https://github.com/Project-Carbonica/RuntimeDependency/commit/356c3b08f96f04bdf3e276d6747a373faf6f479e))
+
 # [2.4.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.3.0...v2.4.0) (2026-01-02)
 
 
