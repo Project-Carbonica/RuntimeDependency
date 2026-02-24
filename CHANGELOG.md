@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.5.0...v2.5.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* update build configuration to use GitHub Packages and improve CI workflow ([ad96f66](https://github.com/Project-Carbonica/RuntimeDependency/commit/ad96f666129f4a66c1434941060314f7bc2fb0e8))
+
 # [2.5.0](https://github.com/Project-Carbonica/RuntimeDependency/compare/v2.4.0...v2.5.0) (2026-01-06)
 
 
