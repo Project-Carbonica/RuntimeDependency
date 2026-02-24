@@ -5,4 +5,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RuntimeDependency"
+rootProject.name = "runtime-dependency"
