@@ -56,21 +56,13 @@ publishing {
         }
     }
     repositories {
-        // Nexus repository (sadece CI'da kullanılır)
-        val nexusReleaseUrl = System.getenv("NEXUS_RELEASE_URL")
-        val nexusSnapshotUrl = System.getenv("NEXUS_SNAPSHOT_URL")
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Project-Carbonica/RuntimeDependency")
 
-        if (nexusReleaseUrl != null && nexusSnapshotUrl != null) {
-            maven {
-                name = "nexus"
-                url = uri(if (version.toString().endsWith("SNAPSHOT")) nexusSnapshotUrl else nexusReleaseUrl)
-
-                credentials {
-                    username = project.findProperty("nexusUsername")?.toString()
-                        ?: System.getenv("NEXUS_USERNAME")
-                    password = project.findProperty("nexusPassword")?.toString()
-                        ?: System.getenv("NEXUS_PASSWORD")
-                }
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+                password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
             }
         }
     }
